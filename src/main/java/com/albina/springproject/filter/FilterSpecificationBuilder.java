@@ -20,8 +20,8 @@ public class FilterSpecificationBuilder<E> implements SpecificationBuilder<E> {
 
     public Specification<E> build(){
         return (root, criteriaQuery, criteriaBuilder) -> {
-            Predicate[] predicates = (Predicate[]) params.entrySet().stream()
-                    .map(crit -> criteriaBuilder.equal(root.get(crit.getKey()), crit.getValue())).toArray();
+            Predicate[] predicates = params.entrySet().stream()
+                    .map(crit -> criteriaBuilder.equal(root.get(crit.getKey()), crit.getValue())).toArray(Predicate[]::new);
 
             return criteriaBuilder.and(predicates);
         };
