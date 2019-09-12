@@ -73,7 +73,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     @Override
-    public List<OrganizationView> filteredOrganizations(Map<String, Object> filter) {
+    public List<OrganizationView> getFilteredList(Map<String, Object> filter) {
         if (!filter.containsKey("name") || null == filter.get("name") || filter.get("name").equals("")) {
             throw new IllegalArgumentException("Required parameter 'name' is missing");
         }
