@@ -1,9 +1,13 @@
 package com.albina.springproject.controllers;
 
 
+import com.albina.springproject.common.DataResponse;
+import com.albina.springproject.common.ResultResponse;
 import com.albina.springproject.services.OrganizationService;
 import com.albina.springproject.view.OrganizationView;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,23 +32,27 @@ public class OrganizationController {
     }
 
     @GetMapping("/{id}")
-    public OrganizationView getById(@PathVariable Long id) {
-        return organizationService.get(id);
+    public ResponseEntity getById(@PathVariable Long id) {
+        return new ResponseEntity<>(new DataResponse<>(organizationService.get(id)), HttpStatus.OK);
     }
 
     @PostMapping("/list")
-    public List<OrganizationView> list(@RequestBody Map<String, Object> requestBody) {
-        return organizationService.filteredOrganizations(requestBody);
+    public ResponseEntity list(@RequestBody Map<String, Object> requestBody) {
+        return new ResponseEntity<>(new DataResponse<>(organizationService.getFilteredList(requestBody)), HttpStatus.OK);
     }
 
     @PostMapping("/save")
-    public void save(@RequestBody OrganizationView organization) {
+    public ResponseEntity save(@RequestBody OrganizationView organization) {
+
         organizationService.add(organization);
+        return new ResponseEntity<>(new DataResponse<>(new ResultResponse("success")), HttpStatus.OK);
     }
 
     @PostMapping("/update")
-    public void update(@RequestBody OrganizationView organization) {
+    public ResponseEntity update(@RequestBody OrganizationView organization) {
+
         organizationService.add(organization);
+        return new ResponseEntity<>(new DataResponse<>(new ResultResponse("success")), HttpStatus.OK);
     }
 
 }
