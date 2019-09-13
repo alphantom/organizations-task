@@ -6,11 +6,11 @@ import javax.validation.constraints.Size;
 public class OfficeView {
     public Long id;
 
-    @NotEmpty(message = "Office name can't be null")
+    @NotEmpty(message = "Office's name can't be null")
     @Size(max = 60)
     public String name;
 
-    @NotEmpty(message = "Organization name can't be null")
+    @NotEmpty(message = "Office's address can't be null")
     public String address;
 
     @Size(max = 15)
@@ -18,7 +18,7 @@ public class OfficeView {
 
     public Boolean isActive;
 
-    @NotEmpty(message = "Organization name can't be null")
+    @NotEmpty(message = "Office's organization id can't be null")
     public Long organizationId;
 
     @Override

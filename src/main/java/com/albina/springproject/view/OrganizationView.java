@@ -7,22 +7,22 @@ public class OrganizationView {
 
     public Long id;
 
-    @NotEmpty(message = "Organization name can't be null")
+    @NotEmpty(message = "Organization's name can't be null")
     @Size(max = 50)
     public String name;
 
-    @NotEmpty(message = "Organization full name can't be null")
+    @NotEmpty(message = "Organization's full name can't be null")
     public String fullName;
 
-    @NotEmpty(message = "Organization inn can't be null")
+    @NotEmpty(message = "Organization's inn can't be null")
     @Size(max = 12)
     public String inn;
 
-    @NotEmpty(message = "Organization kpp can't be null")
+    @NotEmpty(message = "Organization's kpp can't be null")
     @Size(max = 9)
     public String kpp;
 
-    @NotEmpty(message = "Organization address can't be null")
+    @NotEmpty(message = "Organization's address can't be null")
     public String address;
 
     @Size(max = 15)
