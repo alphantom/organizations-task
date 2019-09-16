@@ -19,3 +19,6 @@ insert into country values(804, 'Украина');
 insert into country values(126, 'Литовская Республика');
 insert into country values(840, 'Соединённые Штаты Америки');
 insert into country values(826, 'Соединённое Королевство Великобритании и Северной Ирландии');
+
+
+insert into organization (name, fullname, inn, kpp, address, phone, active) values ('org1', 'org1 OOO', '12345678912', '100101010', 'st 123', '8966522563', true);

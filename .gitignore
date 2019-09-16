@@ -36,4 +36,12 @@ build/
 ### VS Code ###
 .vscode/
 
-
+backend/src/main/resources/public/
+backend/target
+frontend/dist/
+frontend/node/
+frontend/node_modules/
+frontend/npm-debug.log
+frontend/target
+frontend/yarn-error.log
+frontend/yarn.lock

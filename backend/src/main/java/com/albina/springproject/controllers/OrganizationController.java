@@ -38,6 +38,7 @@ public class OrganizationController {
 
     @PostMapping("/list")
     public ResponseEntity list(@RequestBody Map<String, Object> requestBody) {
+//        return new ResponseEntity<>(new DataResponse<>(organizationService.all()), HttpStatus.OK);
         return new ResponseEntity<>(new DataResponse<>(organizationService.getFilteredList(requestBody)), HttpStatus.OK);
     }
 

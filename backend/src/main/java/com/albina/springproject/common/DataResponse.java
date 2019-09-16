@@ -5,7 +5,7 @@ public class DataResponse<T> {
     private T data;
 
     public DataResponse(T data) {
-
+        this.data = data;
     }
 
     public T getData() {
