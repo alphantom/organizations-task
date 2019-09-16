@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 @Validated
-public interface CrudService<V> {
+public interface CrudService<V, I> {
 
     /**
      * Save entity to database
@@ -28,7 +28,7 @@ public interface CrudService<V> {
      * @param id
      * @return V
      */
-    V get(Long id);
+    V get(I id);
 
     /**
      * Get filtered list of entities
