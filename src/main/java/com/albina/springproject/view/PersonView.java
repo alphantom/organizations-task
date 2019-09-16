@@ -24,10 +24,10 @@ public class PersonView {
     @Size(max = 15)
     public String phone;
 
-    private Date docDate;
+    public Date docDate;
 
     @Size(max = 35)
-    private String docNumber;
+    public String docNumber;
 
     @NotEmpty(message = "Person must be identified or not")
     public Boolean identified;
@@ -35,9 +35,9 @@ public class PersonView {
     @NotEmpty(message = "Person's office id can't be null")
     public Long officeId;
 
-    private byte documentId;
+    public Byte documentId;
 
-    private short countryId;
+    public Short countryId;
 
     @Override
     public String toString() {
