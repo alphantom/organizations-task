@@ -4,16 +4,16 @@ public class ErrorResponse {
 
     private String error;
 
-    public ErrorResponse(String message) {
+    public ErrorResponse(String error) {
         super();
-        this.error = message;
+        this.error = error;
     }
 
-    public String getMessage() {
+    public String getError() {
         return error;
     }
 
-    public void setMessage(String message) {
-        this.error = message;
+    public void setError(String error) {
+        this.error = error;
     }
 }
