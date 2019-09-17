@@ -2,8 +2,18 @@ package com.albina.springproject.models;
 
 import com.albina.springproject.models.catalog.Country;
 import com.albina.springproject.models.catalog.Document;
-
-import javax.persistence.*;
+import javax.persistence.Id;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Column;
+import javax.persistence.Version;
+import javax.persistence.ManyToOne;
+import javax.persistence.JoinColumn;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.FetchType;
 import java.util.Date;
 
 @Entity
