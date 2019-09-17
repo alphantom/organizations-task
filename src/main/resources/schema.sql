@@ -7,8 +7,8 @@ create table if not exists organization (
     address     varchar(255) not null,
     phone       varchar(15),
     active      boolean not null default true,
-    version    integer not null,
-    constraint uk_inn unique (inn)
+    version     integer not null,
+    constraint  uk_inn unique (inn)
 );
 comment on table organization is 'Организация';
 
@@ -40,9 +40,9 @@ comment on table country is 'Страна';
 
 create table if not exists person (
     id          bigint primary key auto_increment,
-    first_name   varchar(50) not null,
-    secon_dname  varchar(50),
-    middle_name  varchar(50),
+    first_name  varchar(50) not null,
+    secon_dname varchar(50),
+    middle_name varchar(50),
     position    varchar(50) not null,
     phone       varchar(15),
     doc_date    date,
