@@ -1,6 +1,12 @@
 package com.albina.springproject.models;
 
-import javax.persistence.*;
+import javax.persistence.Id;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Column;
+import javax.persistence.Version;
 
 @Entity
 @Table(name = "organization")
@@ -11,10 +17,10 @@ public class Organization {
     @Column
     private Long id;
 
-    @Column(length = 50)
+    @Column(length = 50, nullable = false)
     private String name;
 
-    @Column(name = "fullname")
+    @Column(name = "fullname", nullable = false)
     private String fullName;
 
     @Column(length = 12, nullable = false, unique = true)
@@ -23,7 +29,7 @@ public class Organization {
     @Column(length = 9, nullable = false)
     private String kpp;
 
-    @Column(nullable = false)
+    @Column(length = 255, nullable = false)
     private String address;
 
     @Column(length = 15)
