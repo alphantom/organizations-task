@@ -49,6 +49,9 @@ public class Person {
     @Column(name = "country_id", insertable = false, updatable = false)
     private short countryId;
 
+    @Version
+    private Integer version;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "off_id")
     private Office office;

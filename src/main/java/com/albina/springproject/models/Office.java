@@ -30,6 +30,9 @@ public class Office {
     @JoinColumn(name = "org_id")
     private Organization organization;
 
+    @Version
+    private Integer version;
+
     public Long getId() {
         return id;
     }

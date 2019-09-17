@@ -32,6 +32,9 @@ public class Organization {
     @Column(name = "active", nullable = false)
     private boolean isActive;
 
+    @Version
+    private Integer version;
+
     public Long getId() {
         return id;
     }
