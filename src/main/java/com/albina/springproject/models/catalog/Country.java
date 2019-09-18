@@ -20,9 +20,6 @@ public class Country {
     @Column(length = 70, nullable = false)
     private String name;
 
-    @Version
-    private Integer version;
-
     public short getCode() {
         return code;
     }

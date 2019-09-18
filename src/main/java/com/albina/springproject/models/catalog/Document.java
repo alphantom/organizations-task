@@ -20,9 +20,6 @@ public class Document {
     @Column(length = 50, nullable = false)
     private String name;
 
-    @Version
-    private Integer version;
-
     public byte getCode() {
         return code;
     }

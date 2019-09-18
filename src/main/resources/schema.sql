@@ -26,15 +26,13 @@ comment on table office is 'Офис';
 
 create table if not exists document (
     code        smallint not null,
-    name        varchar(50) not null,
-    version     integer not null
+    name        varchar(50) not null
 );
 comment on table document is 'Документ';
 
 create table if not exists country (
     code        smallint primary key,
-    name        varchar(70) not null,
-    version     integer not null,
+    name        varchar(70) not null
 );
 comment on table country is 'Страна';
 
