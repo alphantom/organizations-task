@@ -37,7 +37,7 @@ public class OrganizationView {
         sb.append(", name=").append(name);
         sb.append(", fullName=").append(fullName);
         sb.append(", inn=").append(inn);
-        sb.append(", kpp=").append(address);
+        sb.append(", kpp=").append(kpp);
         sb.append(", address=").append(address);
         sb.append(", phone=").append(phone);
         sb.append(", isActive=").append(isActive);

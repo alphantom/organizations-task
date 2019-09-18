@@ -36,7 +36,7 @@ public class Organization {
     private String phone;
 
     @Column(name = "active", nullable = false)
-    private boolean isActive;
+    private Boolean isActive;
 
     @Version
     private Integer version;
@@ -97,11 +97,11 @@ public class Organization {
         this.phone = phone;
     }
 
-    public boolean isActive() {
+    public Boolean getIsActive() {
         return isActive;
     }
 
-    public void setIsActive(boolean isActive) {
+    public void setIsActive(Boolean isActive) {
         this.isActive = isActive;
     }
 
