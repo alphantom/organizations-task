@@ -48,7 +48,9 @@ public class Organization {
     @Version
     private Integer version;
 
-    @ManyToMany(cascade = { CascadeType.ALL }, fetch = FetchType.LAZY)
+    @ManyToMany(cascade = {
+            CascadeType.PERSIST,
+            CascadeType.MERGE }, fetch = FetchType.LAZY)
     @JoinTable(
             name = "organization_office ",
             joinColumns = { @JoinColumn(name = "org_id") },
