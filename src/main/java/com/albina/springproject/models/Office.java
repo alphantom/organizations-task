@@ -1,14 +1,8 @@
 package com.albina.springproject.models;
 
-import javax.persistence.Id;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Column;
-import javax.persistence.Version;
-import javax.persistence.ManyToOne;
-import javax.persistence.JoinColumn;
+import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "office")
@@ -31,12 +25,13 @@ public class Office {
     @Column(name = "active", nullable = false)
     private boolean isActive;
 
-    @Column(name = "org_id", nullable = false, insertable = false, updatable = false)
-    private Long organizationId;
-
-    @ManyToOne
-    @JoinColumn(name = "org_id")
-    private Organization organization;
+    @ManyToMany
+    @JoinTable(
+            name = "organization_office ",
+            joinColumns = { @JoinColumn(name = "off_id") },
+            inverseJoinColumns = { @JoinColumn(name = "org_id") }
+    )
+    private Set<Organization> organizations = new HashSet<>();
 
     @Version
     private Integer version;
@@ -81,20 +76,11 @@ public class Office {
         isActive = active;
     }
 
-    public Long getOrganizationId() {
-        return organizationId;
+    public Set<Organization> getOrganizations() {
+        return organizations;
     }
 
-    public void setOrganizationId(Long organizationId) {
-        this.organizationId = organizationId;
+    public void setOrganizations(Set<Organization> organizations) {
+        this.organizations = organizations;
     }
-
-    public Organization getOrganization() {
-        return organization;
-    }
-
-    public void setOrganization(Organization organization) {
-        this.organization = organization;
-    }
-
 }

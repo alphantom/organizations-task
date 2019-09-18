@@ -40,7 +40,7 @@ public class OfficeServiceImpl implements OfficeService{
             Office office = optionalOffice.get();
 
             office.setName(officeView.name);
-            office.setOrganizationId(officeView.organizationId);
+//            office.setOrganizationId(officeView.organizationId);
             office.setAddress(officeView.address);
             if (null != officeView.phone) office.setPhone(officeView.phone);
             if (null != officeView.isActive) office.setIsActive(officeView.isActive);

@@ -7,6 +7,13 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Column;
 import javax.persistence.Version;
+import javax.persistence.ManyToMany;
+import javax.persistence.JoinTable;
+import javax.persistence.CascadeType;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "organization")
@@ -40,6 +47,14 @@ public class Organization {
 
     @Version
     private Integer version;
+
+    @ManyToMany(cascade = { CascadeType.ALL }, fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "organization_office ",
+            joinColumns = { @JoinColumn(name = "org_id") },
+            inverseJoinColumns = { @JoinColumn(name = "off_id") }
+    )
+    private Set<Office> offices = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -85,6 +100,14 @@ public class Organization {
         return address;
     }
 
+    public Set<Office> getOffices() {
+        return offices;
+    }
+
+    public void setOffices(Set<Office> offices) {
+        this.offices = offices;
+    }
+
     public void setAddress(String address) {
         this.address = address;
     }
@@ -104,5 +127,6 @@ public class Organization {
     public void setIsActive(boolean isActive) {
         this.isActive = isActive;
     }
+
 
 }
