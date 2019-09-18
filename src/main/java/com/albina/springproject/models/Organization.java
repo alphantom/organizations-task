@@ -106,8 +106,12 @@ public class Organization {
         return offices;
     }
 
-    public void setOffices(Set<Office> offices) {
-        this.offices = offices;
+    public void addOffice(Office office) {
+        this.offices.add(office);
+    }
+
+    public void removeOffice(Office office) {
+        this.offices.remove(office);
     }
 
     public void setAddress(String address) {

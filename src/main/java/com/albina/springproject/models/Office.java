@@ -82,7 +82,4 @@ public class Office {
         return organizations;
     }
 
-    public void setOrganizations(Set<Organization> organizations) {
-        this.organizations = organizations;
-    }
 }
