@@ -1,6 +1,13 @@
 package com.albina.springproject.models;
 
-import javax.persistence.*;
+import javax.persistence.Id;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Column;
+import javax.persistence.Version;
+import javax.persistence.ManyToMany;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -25,12 +32,7 @@ public class Office {
     @Column(name = "active", nullable = false)
     private boolean isActive;
 
-    @ManyToMany
-    @JoinTable(
-            name = "organization_office ",
-            joinColumns = { @JoinColumn(name = "off_id") },
-            inverseJoinColumns = { @JoinColumn(name = "org_id") }
-    )
+    @ManyToMany(mappedBy="offices")
     private Set<Organization> organizations = new HashSet<>();
 
     @Version
@@ -80,7 +82,4 @@ public class Office {
         return organizations;
     }
 
-    public void setOrganizations(Set<Organization> organizations) {
-        this.organizations = organizations;
-    }
 }

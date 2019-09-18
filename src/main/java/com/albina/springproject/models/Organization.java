@@ -48,7 +48,9 @@ public class Organization {
     @Version
     private Integer version;
 
-    @ManyToMany(cascade = { CascadeType.ALL }, fetch = FetchType.LAZY)
+    @ManyToMany(cascade = {
+            CascadeType.PERSIST,
+            CascadeType.MERGE }, fetch = FetchType.LAZY)
     @JoinTable(
             name = "organization_office ",
             joinColumns = { @JoinColumn(name = "org_id") },
@@ -104,8 +106,12 @@ public class Organization {
         return offices;
     }
 
-    public void setOffices(Set<Office> offices) {
-        this.offices = offices;
+    public void addOffice(Office office) {
+        this.offices.add(office);
+    }
+
+    public void removeOffice(Office office) {
+        this.offices.remove(office);
     }
 
     public void setAddress(String address) {
