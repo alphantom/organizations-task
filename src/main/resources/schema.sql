@@ -29,7 +29,7 @@ create table if not exists organization_office (
     foreign key (org_id) references organization(id),
     foreign key (off_id) references office(id)
 );
-comment on table office is 'Связь Организация - Офис';
+comment on table organization_office is 'Связь Организация - Офис';
 
 create table if not exists country (
     code        smallint primary key,
