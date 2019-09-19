@@ -10,8 +10,6 @@ import java.util.Date;
 public class Document {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column
     private Long id;
 
     @Column(name = "date", nullable = false)
@@ -26,6 +24,10 @@ public class Document {
 
     @Version
     private Integer version;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @MapsId
+    private Person person;
 
     @ManyToOne
     @JoinColumn(name = "type_id")
@@ -61,6 +63,14 @@ public class Document {
 
     public void setTypeId(Long typeId) {
         this.typeId = typeId;
+    }
+
+    public Person getPerson() {
+        return person;
+    }
+
+    public void setPerson(Person person) {
+        this.person = person;
     }
 
     public DocumentType getDocumentType() {

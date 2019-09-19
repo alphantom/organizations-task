@@ -43,17 +43,6 @@ create table if not exists document_type (
 );
 comment on table document_type is 'Тип документа';
 
-
-create table if not exists document (
-    id          bigint primary key auto_increment,
-    type_id     tinyint not null,
-    date        date not null,
-    number      varchar(35) not null,
-    version     integer not null,
-    foreign key (type_id) references document_type(code),
-);
-comment on table document is 'Документы';
-
 create table if not exists person (
     id          bigint primary key auto_increment,
     first_name  varchar(50) not null,
@@ -63,11 +52,20 @@ create table if not exists person (
     phone       varchar(15),
     identified  boolean,
     off_id      bigint,
-    doc_id      bigint,
     country_id  smallint,
     version     integer not null,
     foreign key (off_id) references office(id),
-    foreign key (doc_id) references document(id),
     foreign key (country_id) references country(code)
 );
 comment on table person is 'Пользователи';
+
+create table if not exists document (
+    id          bigint primary key,
+    type_id     tinyint not null,
+    date        date not null,
+    number      varchar(35) not null,
+    version     integer not null,
+    foreign key (type_id) references document_type(code),
+    foreign key (id) references person(id)
+);
+comment on table document is 'Документы';
