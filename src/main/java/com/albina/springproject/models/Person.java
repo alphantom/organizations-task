@@ -12,6 +12,7 @@ import javax.persistence.Version;
 import javax.persistence.ManyToOne;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
+import javax.persistence.CascadeType;
 import javax.persistence.FetchType;
 
 @Entity
@@ -57,8 +58,7 @@ public class Person {
     @JoinColumn(name = "off_id")
     private Office office;
 
-    @OneToOne
-    @JoinColumn(name = "doc_id")
+    @OneToOne(mappedBy = "person", cascade = CascadeType.ALL, optional = false, fetch = FetchType.LAZY)
     private Document document;
 
     @ManyToOne(fetch = FetchType.LAZY)
