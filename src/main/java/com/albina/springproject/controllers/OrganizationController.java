@@ -51,7 +51,7 @@ public class OrganizationController {
     @PostMapping("/update")
     public ResponseEntity update(@RequestBody OrganizationView organization) {
 
-        organizationService.add(organization);
+        organizationService.update(organization);
         return new ResponseEntity<>(new DataResponse<>(new ResultResponse("success")), HttpStatus.OK);
     }
 

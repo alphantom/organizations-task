@@ -44,7 +44,7 @@ public class OrganizationServiceImpl implements OrganizationService {
             organization.setInn(organizationView.inn);
             organization.setKpp(organizationView.kpp);
             organization.setAddress(organizationView.address);
-            if (null != organizationView.phone) organization.setPhone(organizationView.phone);
+            organization.setPhone(organizationView.phone);
             if (null != organizationView.isActive) organization.setIsActive(organizationView.isActive);
 
             organizationRepository.save(organization);

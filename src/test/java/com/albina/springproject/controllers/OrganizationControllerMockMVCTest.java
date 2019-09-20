@@ -9,34 +9,24 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
 import net.minidev.json.JSONObject;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.http.MediaType;
-import org.springframework.http.RequestEntity;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
 
-import javax.validation.constraints.AssertTrue;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -47,7 +37,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 public class OrganizationControllerMockMVCTest {
-
+//TODO : add cheking for an office set
     @Autowired
     private MockMvc mvc;
 
@@ -158,14 +148,91 @@ public class OrganizationControllerMockMVCTest {
 
         assertThat(isSaved).isTrue();
     }
-//    TODO: 3. /save
-//      3.1. GetFullObject then ReturnJSONDataSuccess
-//      3.2. GetWithoutDefault then ReturnJSONDataSuccess
-//      3.3. GetWithNull then ReturnJSONWithError
 
-//    TODO: 4. /update
-//      4.1. GetFullObject then ReturnJSONDataSuccess
-//      4.2. GetWithNull then ReturnJSONWithError
+    @Test
+    public void saveURL_whenGetNotFull_thenReturnJSONDataSuccess() throws Exception {
 
+        Organization organization = OrganizationSeeder.getOrganizationWithDefault();
+
+        mvc.perform(post("/api/organization/save")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonMapper.writeValueAsString(organization)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.result").value("success"));
+
+        boolean isSaved = organizationRepository.exists(Example.of(organization, ExampleMatcher.matching()
+                .withIgnorePaths("id", "version")));
+
+        assertThat(isSaved).isTrue();
+    }
+
+    @Test
+    public void saveURL_whenGetNotFull_thenReturnJSONError() throws Exception {
+
+        Organization organization = OrganizationSeeder.getOrganizationWithoutDefault();
+
+        mvc.perform(post("/api/organization/save")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonMapper.writeValueAsString(organization)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.error").exists());
+
+        boolean isSaved = organizationRepository.exists(Example.of(organization, ExampleMatcher.matching()
+                .withIgnorePaths("id", "version")));
+
+        assertThat(isSaved).isFalse();
+    }
+
+    @Test
+    public void updateURL_whenGetFullObject_thenReturnJSONDataSuccess() throws Exception {
+
+        Organization organizationToUpdate = OrganizationSeeder.getOrganization();
+        organizationRepository.save(organizationToUpdate);
+
+        mvc.perform(post("/api/organization/update")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonMapper.writeValueAsString(organizationToUpdate)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.result").value("success"));
+
+        Optional<Organization> optionalOrganization = organizationRepository.findById(organizationToUpdate.getId());
+
+        assertThat(optionalOrganization.get().equals(organizationToUpdate)).isTrue();
+
+    }
+
+    @Test
+    public void updateURL_whenGetNotFull_thenReturnJSONDataSuccess() throws Exception {
+
+        Organization organizationToUpdate = OrganizationSeeder.getOrganizationWithDefault();
+        organizationToUpdate.setId(1L);
+
+        mvc.perform(post("/api/organization/update")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonMapper.writeValueAsString(organizationToUpdate)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.result").value("success"));
+
+        Optional<Organization> optionalOrganization = organizationRepository.findById(organizationToUpdate.getId());
+        Organization organizationUpdated = optionalOrganization.get();
+        organizationToUpdate.setIsActive(organizationUpdated.getIsActive());
+        assertThat(optionalOrganization.get().equals(organizationToUpdate)).isTrue();
+    }
+
+    @Test
+    public void updateURL_whenGetNotFull_thenReturnJSONError() throws Exception {
+
+        Organization organizationToUpdate = OrganizationSeeder.getOrganizationWithoutDefault();
+        organizationToUpdate.setId(1L);
+        mvc.perform(post("/api/organization/save")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonMapper.writeValueAsString(organizationToUpdate)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.error").exists());
+
+        Optional<Organization> optionalOrganization = organizationRepository.findById(organizationToUpdate.getId());
+        assertThat(optionalOrganization.get().equals(organizationToUpdate)).isFalse();
+
+    }
 
 }
