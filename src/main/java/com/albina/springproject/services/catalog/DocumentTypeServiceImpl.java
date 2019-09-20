@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class DocumentServiceImpl implements DocumentService {
+public class DocumentTypeServiceImpl implements DocumentTypeService {
 
     @Autowired
     private DocumentRepository documentRepository;

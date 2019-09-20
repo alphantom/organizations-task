@@ -48,8 +48,8 @@ public class PersonServiceImpl implements PersonService {
             if (null != view.middleName) person.setMiddleName(view.middleName);
             if (null != view.phone) person.setPhone(view.phone);
             if (null != view.documentId) person.setDocumentId(view.documentId);
-            if (null != view.docDate) person.setDocDate(view.docDate);
-            if (null != view.docNumber) person.setDocNumber(view.docNumber);
+//            if (null != view.docDate) person.setDocDate(view.docDate);
+//            if (null != view.docNumber) person.setDocNumber(view.docNumber);
             if (null != view.countryId) person.setCountryId(view.countryId);
 
             personRepository.save(person);

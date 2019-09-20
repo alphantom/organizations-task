@@ -9,8 +9,8 @@ import javax.persistence.Column;
 import javax.persistence.Version;
 
 @Entity
-@Table(name = "document")
-public class Document {
+@Table(name = "document_type")
+public class DocumentType {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

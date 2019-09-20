@@ -1,7 +1,7 @@
 package com.albina.springproject.models;
 
 import com.albina.springproject.models.catalog.Country;
-import com.albina.springproject.models.catalog.Document;
+import com.albina.springproject.models.Document;
 import javax.persistence.Id;
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -11,10 +11,9 @@ import javax.persistence.Column;
 import javax.persistence.Version;
 import javax.persistence.ManyToOne;
 import javax.persistence.JoinColumn;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.OneToOne;
+import javax.persistence.CascadeType;
 import javax.persistence.FetchType;
-import java.util.Date;
 
 @Entity
 @Table(name = "person")
@@ -40,13 +39,6 @@ public class Person {
     @Column(length = 15)
     private String phone;
 
-    @Column(name = "doc_date")
-    @Temporal(TemporalType.DATE)
-    private Date docDate;
-
-    @Column(name = "doc_number", length = 35)
-    private String docNumber;
-
     @Column(nullable = false)
     private boolean identified = false;
 
@@ -66,8 +58,7 @@ public class Person {
     @JoinColumn(name = "off_id")
     private Office office;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "doc_id")
+    @OneToOne(mappedBy = "person", cascade = CascadeType.ALL, optional = false, fetch = FetchType.LAZY)
     private Document document;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -120,22 +111,6 @@ public class Person {
 
     public void setPhone(String phone) {
         this.phone = phone;
-    }
-
-    public Date getDocDate() {
-        return docDate;
-    }
-
-    public void setDocDate(Date docDate) {
-        this.docDate = docDate;
-    }
-
-    public String getDocNumber() {
-        return docNumber;
-    }
-
-    public void setDocNumber(String docNumber) {
-        this.docNumber = docNumber;
     }
 
     public boolean isIdentified() {
