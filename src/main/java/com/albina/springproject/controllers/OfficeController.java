@@ -3,7 +3,7 @@ package com.albina.springproject.controllers;
 import com.albina.springproject.common.DataResponse;
 import com.albina.springproject.common.ResultResponse;
 import com.albina.springproject.services.OfficeService;
-import com.albina.springproject.view.OfficeView;
+import com.albina.springproject.view.OfficeItemView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,14 +40,14 @@ public class OfficeController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity save(@RequestBody OfficeView office) {
+    public ResponseEntity save(@RequestBody OfficeItemView office) {
 
         officeService.add(office);
         return new ResponseEntity<>(new DataResponse<>(new ResultResponse("success")), HttpStatus.OK);
     }
 
     @PostMapping("/update")
-    public ResponseEntity update(@RequestBody OfficeView office) {
+    public ResponseEntity update(@RequestBody OfficeItemView office) {
 
         officeService.add(office);
         return new ResponseEntity<>(new DataResponse<>(new ResultResponse("success")), HttpStatus.OK);

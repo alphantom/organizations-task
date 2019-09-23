@@ -5,6 +5,8 @@ import com.albina.springproject.filter.SearchCriteria;
 import com.albina.springproject.filter.SpecificationBuilder;
 import com.albina.springproject.models.Office;
 import com.albina.springproject.repositories.OfficeRepository;
+import com.albina.springproject.view.OfficeItemView;
+import com.albina.springproject.view.OfficeListView;
 import com.albina.springproject.view.OfficeView;
 import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
@@ -27,13 +29,13 @@ public class OfficeServiceImpl implements OfficeService{
     private MapperFacade mapperFactory = new DefaultMapperFactory.Builder().build().getMapperFacade();
 
     @Override
-    public void add(@Valid OfficeView officeView) {
+    public void add(@Valid OfficeItemView officeView) {
         Office office = mapperFactory.map(officeView, Office.class);
         officeRepository.save(office);
     }
 
     @Override
-    public void update(@Valid OfficeView officeView) {
+    public void update(@Valid OfficeItemView officeView) {
         Optional<Office> optionalOffice = officeRepository.findById(officeView.id);
 
         if (optionalOffice.isPresent()) {
@@ -52,26 +54,26 @@ public class OfficeServiceImpl implements OfficeService{
     }
 
     @Override
-    public OfficeView get(Long id) {
+    public OfficeItemView get(Long id) {
         Optional<Office> optionalOffice = officeRepository.findById(id);
         if (optionalOffice.isPresent()) {
-            return mapperFactory.map(optionalOffice.get(), OfficeView.class);
+            return mapperFactory.map(optionalOffice.get(), OfficeItemView.class);
         } else {
             throw new NoSuchElementException("Office with id = " + id + " can't be found");
         }
     }
 
     @Override
-    public List<OfficeView> all() {
+    public List<OfficeListView> all() {
         List<Office> offices = officeRepository.findAll();
 
         return offices.stream()
-                .map(org -> mapperFactory.map(org, OfficeView.class))
+                .map(org -> mapperFactory.map(org, OfficeListView.class))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<OfficeView> getFilteredList(Map<String, Object> filter) {
+    public List<OfficeListView> getFilteredList(Map<String, Object> filter) {
         if (!filter.containsKey("orgId") || null == filter.get("orgId")) {
             throw new IllegalArgumentException("Required parameter 'orgId' is missing");
         }
@@ -81,7 +83,7 @@ public class OfficeServiceImpl implements OfficeService{
                 .forEach(item -> spec.addFilter(new SearchCriteria(item.getKey(), item.getValue())));
 
         return officeRepository.findAll(spec.build()).stream()
-                .map(org -> mapperFactory.map(org, OfficeView.class))
+                .map(org -> mapperFactory.map(org, OfficeListView.class))
                 .collect(Collectors.toList());
     }
 }

@@ -1,5 +1,7 @@
 package com.albina.springproject.view;
 
+import com.albina.springproject.models.Office;
+
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 
@@ -10,9 +12,6 @@ public class OfficeView {
     @Size(max = 60)
     public String name;
 
-    @NotEmpty(message = "Office's address can't be null")
-    public String address;
-
     @Size(max = 15)
     public String phone;
 
@@ -21,12 +20,21 @@ public class OfficeView {
     @NotEmpty(message = "Office's organization id can't be null")
     public Long organizationId;
 
+    public OfficeView() {}
+
+    public OfficeView(Office office) {
+
+        id = office.getId();
+        phone = office.getPhone();
+        isActive = office.isActive();
+        organizationId = office.getOrganizations().iterator().next().getId();
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("Office{");
         sb.append("id=").append(id);
         sb.append(", name=").append(name);
-        sb.append(", address=").append(address);
         sb.append(", phone=").append(phone);
         sb.append(", organizationId=").append(organizationId);
         sb.append(", isActive=").append(isActive);
