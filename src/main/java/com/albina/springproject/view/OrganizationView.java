@@ -11,23 +11,6 @@ public class OrganizationView {
     @Size(max = 50)
     public String name;
 
-    @NotEmpty(message = "Organization's full name can't be null")
-    public String fullName;
-
-    @NotEmpty(message = "Organization's inn can't be null")
-    @Size(max = 12)
-    public String inn;
-
-    @NotEmpty(message = "Organization's kpp can't be null")
-    @Size(max = 9)
-    public String kpp;
-
-    @NotEmpty(message = "Organization's address can't be null")
-    public String address;
-
-    @Size(max = 15)
-    public String phone;
-
     public Boolean isActive;
 
     @Override
@@ -35,11 +18,6 @@ public class OrganizationView {
         final StringBuilder sb = new StringBuilder("Organization{");
         sb.append("id=").append(id);
         sb.append(", name=").append(name);
-        sb.append(", fullName=").append(fullName);
-        sb.append(", inn=").append(inn);
-        sb.append(", kpp=").append(kpp);
-        sb.append(", address=").append(address);
-        sb.append(", phone=").append(phone);
         sb.append(", isActive=").append(isActive);
         sb.append('}');
         return sb.toString();
