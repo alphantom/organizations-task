@@ -1,15 +1,18 @@
 package com.albina.springproject.view;
 
 import com.albina.springproject.models.Office;
+import com.albina.springproject.models.Organization;
 
 import javax.validation.constraints.NotEmpty;
+import java.util.Objects;
 
 public class OfficeItemView extends OfficeView {
 
     @NotEmpty(message = "Office's address can't be null")
     public String address;
 
-    public OfficeItemView() {}
+    public OfficeItemView() {
+    }
 
     public OfficeItemView(Office office) {
         super(office);

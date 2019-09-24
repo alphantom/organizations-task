@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
 import net.minidev.json.JSONObject;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,12 +38,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 public class OrganizationControllerMockMVCTest {
-//TODO : add cheking for an office set
-    @Autowired
-    private MockMvc mvc;
 
     @Autowired
-    private OrganizationService organizationService;
+    private MockMvc mvc;
 
     @Autowired
     private OrganizationRepository organizationRepository;
@@ -56,6 +54,11 @@ public class OrganizationControllerMockMVCTest {
         Stream.generate(OrganizationSeeder::getOrganization)
                 .limit(10)
                 .forEach(item -> organizationRepository.save(item));
+    }
+
+    @After
+    public void clearData() {
+        organizationRepository.deleteAll();
     }
 
     @Test
@@ -224,7 +227,7 @@ public class OrganizationControllerMockMVCTest {
 
         Organization organizationToUpdate = OrganizationSeeder.getOrganizationWithoutDefault();
         organizationToUpdate.setId(1L);
-        mvc.perform(post("/api/organization/save")
+        mvc.perform(post("/api/organization/update")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonMapper.writeValueAsString(organizationToUpdate)))
                 .andExpect(status().isOk())

@@ -3,6 +3,7 @@ package com.albina.springproject.view;
 import com.albina.springproject.models.Office;
 
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 public class OfficeView {
@@ -17,17 +18,18 @@ public class OfficeView {
 
     public Boolean isActive;
 
-    @NotEmpty(message = "Office's organization id can't be null")
+    @NotNull(message = "Office's organization id can't be null")
     public Long organizationId;
 
     public OfficeView() {}
 
     public OfficeView(Office office) {
-
         id = office.getId();
+        name = office.getName();
         phone = office.getPhone();
         isActive = office.isActive();
-        organizationId = office.getOrganizations().iterator().next().getId();
+        if (!office.getOrganizations().isEmpty())
+            organizationId = office.getOrganizations().iterator().next().getId();
     }
 
     @Override

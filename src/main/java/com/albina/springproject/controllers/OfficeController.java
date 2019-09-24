@@ -49,7 +49,7 @@ public class OfficeController {
     @PostMapping("/update")
     public ResponseEntity update(@RequestBody OfficeItemView office) {
 
-        officeService.add(office);
+        officeService.update(office);
         return new ResponseEntity<>(new DataResponse<>(new ResultResponse("success")), HttpStatus.OK);
     }
 

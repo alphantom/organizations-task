@@ -26,8 +26,8 @@ create table if not exists organization_office (
     org_id bigint not null,
     off_id bigint not null,
     primary key (org_id, off_id),
-    foreign key (org_id) references organization(id),
-    foreign key (off_id) references office(id)
+    foreign key (org_id) references organization(id) ON DELETE CASCADE,
+    foreign key (off_id) references office(id) ON DELETE CASCADE
 );
 comment on table organization_office is 'Связь Организация - Офис';
 
