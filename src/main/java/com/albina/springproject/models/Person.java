@@ -1,7 +1,7 @@
 package com.albina.springproject.models;
 
 import com.albina.springproject.models.catalog.Country;
-import com.albina.springproject.models.Document;
+
 import javax.persistence.Id;
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -14,6 +14,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.CascadeType;
 import javax.persistence.FetchType;
+import java.util.Objects;
 
 @Entity
 @Table(name = "person")
@@ -27,8 +28,8 @@ public class Person {
     @Column(name = "first_name", length = 50, nullable = false)
     private String firstName;
 
-    @Column(name = "second_name", length = 50)
-    private String secondName;
+    @Column(name = "last_name", length = 50)
+    private String lastName;
 
     @Column(name = "middle_name", length = 50)
     private String middleName;
@@ -40,16 +41,13 @@ public class Person {
     private String phone;
 
     @Column(nullable = false)
-    private boolean identified = false;
+    private Boolean identified = false;
 
     @Column(name = "off_id", nullable = false, insertable = false, updatable = false)
     private Long officeId;
 
-    @Column(name = "doc_id", insertable = false, updatable = false)
-    private byte documentId;
-
-    @Column(name = "country_id", insertable = false, updatable = false)
-    private short countryId;
+    @Column(name = "country_id")
+    private Short countryId;
 
     @Version
     private Integer version;
@@ -58,12 +56,12 @@ public class Person {
     @JoinColumn(name = "off_id")
     private Office office;
 
-    @OneToOne(mappedBy = "person", cascade = CascadeType.ALL, optional = false, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy="person", cascade = CascadeType.ALL)
     private Document document;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "country_id")
-    private Country citizenship;
+    @JoinColumn(name = "country_id", insertable = false, updatable = false)
+    private Country country;
 
     public Long getId() {
         return id;
@@ -81,12 +79,12 @@ public class Person {
         this.firstName = firstName;
     }
 
-    public String getSecondName() {
-        return secondName;
+    public String getLastName() {
+        return lastName;
     }
 
-    public void setSecondName(String secondName) {
-        this.secondName = secondName;
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public String getMiddleName() {
@@ -113,7 +111,7 @@ public class Person {
         this.phone = phone;
     }
 
-    public boolean isIdentified() {
+    public boolean getIdentified() {
         return identified;
     }
 
@@ -127,14 +125,6 @@ public class Person {
 
     public void setOfficeId(Long officeId) {
         this.officeId = officeId;
-    }
-
-    public byte getDocumentId() {
-        return documentId;
-    }
-
-    public void setDocumentId(byte documentId) {
-        this.documentId = documentId;
     }
 
     public short getCountryId() {
@@ -161,11 +151,32 @@ public class Person {
         this.document = document;
     }
 
-    public Country getCitizenship() {
-        return citizenship;
+    public Country getCountry() {
+        return country;
     }
 
-    public void setCitizenship(Country citizenship) {
-        this.citizenship = citizenship;
+    public void setCountry(Country country) {
+        this.country = country;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Person)) return false;
+        Person that = (Person) o;
+        return Objects.equals(firstName, that.firstName) &&
+                Objects.equals(lastName, that.lastName) &&
+                Objects.equals(middleName, that.middleName) &&
+                Objects.equals(phone, that.phone) &&
+                Objects.equals(position, that.position) &&
+                Objects.equals(officeId, that.officeId) &&
+                Objects.equals(document, that.document) &&
+                Objects.equals(countryId, that.countryId) &&
+                Objects.equals(identified, that.identified);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(firstName, lastName, middleName, phone, position, officeId, document, countryId, identified);
     }
 }

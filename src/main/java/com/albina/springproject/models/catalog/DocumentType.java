@@ -6,7 +6,6 @@ import javax.persistence.Table;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Column;
-import javax.persistence.Version;
 
 @Entity
 @Table(name = "document_type")
@@ -19,6 +18,13 @@ public class DocumentType {
 
     @Column(length = 50, nullable = false)
     private String name;
+
+    public DocumentType() {}
+
+    public DocumentType(byte code, String name) {
+        this.code = code;
+        this.name = name;
+    }
 
     public byte getCode() {
         return code;

@@ -1,6 +1,16 @@
 package com.albina.springproject.models;
 
-import javax.persistence.*;
+import javax.persistence.Id;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Column;
+import javax.persistence.Version;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
+import javax.persistence.CascadeType;
+import javax.persistence.FetchType;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -31,6 +41,12 @@ public class Office {
             CascadeType.PERSIST,
             CascadeType.REFRESH }, fetch = FetchType.LAZY)
     private Set<Organization> organizations = new HashSet<>();
+
+    @OneToMany(mappedBy="office", cascade = {
+            CascadeType.MERGE,
+            CascadeType.PERSIST,
+            CascadeType.REFRESH }, fetch = FetchType.LAZY)
+    private Set<Person> persons = new HashSet<>();
 
     @Version
     private Integer version;
@@ -90,6 +106,15 @@ public class Office {
 
     public void removeOrganizations(Set<Organization> organizations) {
         this.organizations.removeAll(organizations);
+    }
+
+    public Set<Person> getPersons() {
+        return persons;
+    }
+
+    public void addPerson(Person person) {
+        if (null != persons)
+            persons.add(person);
     }
 
     @Override
