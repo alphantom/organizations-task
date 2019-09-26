@@ -3,10 +3,10 @@ package com.albina.springproject.filter;
 public class SearchCriteria {
 
     private String key;
-    private String operation;
+    private SearchOperation operation;
     private Object value;
 
-    public SearchCriteria(String key, String operation, Object value) {
+    public SearchCriteria(String key, SearchOperation operation, Object value) {
         this.key = key;
         this.operation = operation;
         this.value = value;
@@ -15,6 +15,7 @@ public class SearchCriteria {
     public SearchCriteria(String key, Object value) {
         this.key = key;
         this.value = value;
+        this.operation = SearchOperation.EQUALS;
     }
 
     public String getKey() {
@@ -25,11 +26,11 @@ public class SearchCriteria {
         this.key = key;
     }
 
-    public String getOperation() {
+    public SearchOperation getOperation() {
         return operation;
     }
 
-    public void setOperation(String operation) {
+    public void setOperation(SearchOperation operation) {
         this.operation = operation;
     }
 

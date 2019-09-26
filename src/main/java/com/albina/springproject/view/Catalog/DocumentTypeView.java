@@ -3,7 +3,7 @@ package com.albina.springproject.view.Catalog;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 
-public class DocumentView {
+public class DocumentTypeView {
 
     @NotEmpty(message = "DocumentType's code can't be null")
     public byte code;

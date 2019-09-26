@@ -6,7 +6,6 @@ import javax.persistence.Table;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Column;
-import javax.persistence.Version;
 
 @Entity
 @Table(name = "country")
@@ -15,16 +14,23 @@ public class Country {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
-    private short code;
+    private Short code;
 
     @Column(length = 70, nullable = false)
     private String name;
+
+    public Country(){}
+
+    public Country(Short code, String name){
+        this.code = code;
+        this.name = name;
+    }
 
     public short getCode() {
         return code;
     }
 
-    public void setCode(short code) {
+    public void setCode(Short code) {
         this.code = code;
     }
 

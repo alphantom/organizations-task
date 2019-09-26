@@ -26,8 +26,8 @@ create table if not exists organization_office (
     org_id bigint not null,
     off_id bigint not null,
     primary key (org_id, off_id),
-    foreign key (org_id) references organization(id),
-    foreign key (off_id) references office(id)
+    foreign key (org_id) references organization(id) ON DELETE CASCADE,
+    foreign key (off_id) references office(id) ON DELETE CASCADE
 );
 comment on table organization_office is 'Связь Организация - Офис';
 
@@ -38,24 +38,24 @@ create table if not exists country (
 comment on table country is 'Страна';
 
 create table if not exists document_type (
-    code        smallint not null,
+    code        tinyint not null,
     name        varchar(50) not null
 );
 comment on table document_type is 'Тип документа';
 
 create table if not exists person (
-    id          bigint primary key auto_increment,
-    first_name  varchar(50) not null,
-    secon_dname varchar(50),
-    middle_name varchar(50),
-    position    varchar(50) not null,
-    phone       varchar(15),
-    identified  boolean,
-    off_id      bigint,
-    country_id  smallint,
-    version     integer not null,
-    foreign key (off_id) references office(id),
-    foreign key (country_id) references country(code)
+    id           bigint primary key auto_increment,
+    first_name   varchar(50) not null,
+    last_name    varchar(50),
+    middle_name  varchar(50),
+    position     varchar(50) not null,
+    phone        varchar(15),
+    identified   boolean,
+    off_id       bigint,
+    country_id   smallint,
+    version      integer not null,
+    foreign key  (off_id) references office(id),
+    foreign key  (country_id) references country(code)
 );
 comment on table person is 'Пользователи';
 

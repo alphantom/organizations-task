@@ -4,6 +4,7 @@ package com.albina.springproject.controllers;
 import com.albina.springproject.common.DataResponse;
 import com.albina.springproject.common.ResultResponse;
 import com.albina.springproject.services.OrganizationService;
+import com.albina.springproject.view.OrganizationItemView;
 import com.albina.springproject.view.OrganizationView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -42,16 +43,16 @@ public class OrganizationController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity save(@RequestBody OrganizationView organization) {
+    public ResponseEntity save(@RequestBody OrganizationItemView organization) {
 
         organizationService.add(organization);
         return new ResponseEntity<>(new DataResponse<>(new ResultResponse("success")), HttpStatus.OK);
     }
 
     @PostMapping("/update")
-    public ResponseEntity update(@RequestBody OrganizationView organization) {
+    public ResponseEntity update(@RequestBody OrganizationItemView organization) {
 
-        organizationService.add(organization);
+        organizationService.update(organization);
         return new ResponseEntity<>(new DataResponse<>(new ResultResponse("success")), HttpStatus.OK);
     }
 

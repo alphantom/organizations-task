@@ -13,6 +13,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -43,7 +44,7 @@ public class Organization {
     private String phone;
 
     @Column(name = "active", nullable = false)
-    private boolean isActive;
+    private Boolean isActive = true;
 
     @Version
     private Integer version;
@@ -126,13 +127,30 @@ public class Organization {
         this.phone = phone;
     }
 
-    public boolean isActive() {
+    public Boolean getIsActive() {
         return isActive;
     }
 
-    public void setIsActive(boolean isActive) {
+    public void setIsActive(Boolean isActive) {
         this.isActive = isActive;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Organization)) return false;
+        Organization that = (Organization) o;
+        return Objects.equals(name, that.name) &&
+                Objects.equals(fullName, that.fullName) &&
+                Objects.equals(inn, that.inn) &&
+                Objects.equals(kpp, that.kpp) &&
+                Objects.equals(phone, that.phone) &&
+                Objects.equals(isActive, that.isActive);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, fullName, inn, kpp, phone, isActive);
+    }
 
 }

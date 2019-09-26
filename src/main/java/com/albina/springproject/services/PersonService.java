@@ -1,7 +1,8 @@
 package com.albina.springproject.services;
 
 
-import com.albina.springproject.view.PersonView;
+import com.albina.springproject.view.PersonItemView;
+import com.albina.springproject.view.PersonListView;
 
-public interface PersonService extends CrudService<PersonView, Long>{
+public interface PersonService extends CrudService<PersonListView, PersonItemView, Long>{
 }

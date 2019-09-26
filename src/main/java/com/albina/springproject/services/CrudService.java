@@ -6,41 +6,47 @@ import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
 
+/**
+ *
+ * @param <S> short view
+ * @param <F> full view
+ * @param <I> id
+ */
 @Validated
-public interface CrudService<V, I> {
+public interface CrudService<S, F, I> {
 
     /**
      * Save entity to database
      *
      * @param view
      */
-    void add(@Valid V view);
+    void add(@Valid F view);
 
     /**
      * Update entity
      *
      * @param view
      */
-    void update(@Valid V view);
+    void update(@Valid F view);
 
     /**
      * Get entity by id
      * @param id
      * @return V
      */
-    V get(I id);
+    F get(I id);
 
     /**
      * Get filtered list of entities
      *
      * @return {V}
      */
-    List<V> getFilteredList(Map<String, Object> filters);
+    List<S> getFilteredList(Map<String, Object> filters);
 
     /**
      * Get full list of entities
      *
      * @return {V}
      */
-    List<V> all();
+    List<S> all();
 }

@@ -8,7 +8,11 @@ import javax.persistence.GenerationType;
 import javax.persistence.Column;
 import javax.persistence.Version;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
+import javax.persistence.CascadeType;
+import javax.persistence.FetchType;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -32,8 +36,17 @@ public class Office {
     @Column(name = "active", nullable = false)
     private boolean isActive;
 
-    @ManyToMany(mappedBy="offices")
+    @ManyToMany(mappedBy="offices", cascade = {
+            CascadeType.MERGE,
+            CascadeType.PERSIST,
+            CascadeType.REFRESH }, fetch = FetchType.LAZY)
     private Set<Organization> organizations = new HashSet<>();
+
+    @OneToMany(mappedBy="office", cascade = {
+            CascadeType.MERGE,
+            CascadeType.PERSIST,
+            CascadeType.REFRESH }, fetch = FetchType.LAZY)
+    private Set<Person> persons = new HashSet<>();
 
     @Version
     private Integer version;
@@ -80,6 +93,45 @@ public class Office {
 
     public Set<Organization> getOrganizations() {
         return organizations;
+    }
+
+    public void addOrganization(Organization organization) {
+        if (null != organizations)
+            organizations.add(organization);
+    }
+
+    public void removeOrganization(Organization organization) {
+        organizations.remove(organization);
+    }
+
+    public void removeOrganizations(Set<Organization> organizations) {
+        this.organizations.removeAll(organizations);
+    }
+
+    public Set<Person> getPersons() {
+        return persons;
+    }
+
+    public void addPerson(Person person) {
+        if (null != persons)
+            persons.add(person);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Office)) return false;
+        Office that = (Office) o;
+        return Objects.equals(name, that.name) &&
+                Objects.equals(address, that.address) &&
+                Objects.equals(organizations, that.organizations) &&
+                Objects.equals(phone, that.phone) &&
+                Objects.equals(isActive, that.isActive);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, address, organizations, phone, isActive);
     }
 
 }

@@ -3,7 +3,7 @@ package com.albina.springproject.controllers;
 import com.albina.springproject.common.DataResponse;
 import com.albina.springproject.common.ResultResponse;
 import com.albina.springproject.services.PersonService;
-import com.albina.springproject.view.PersonView;
+import com.albina.springproject.view.PersonItemView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,16 +39,16 @@ public class PersonController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity save(@RequestBody PersonView person) {
+    public ResponseEntity save(@RequestBody PersonItemView person) {
 
         personService.add(person);
         return new ResponseEntity<>(new DataResponse<>(new ResultResponse("success")), HttpStatus.OK);
     }
 
     @PostMapping("/update")
-    public ResponseEntity update(@RequestBody PersonView person) {
+    public ResponseEntity update(@RequestBody PersonItemView person) {
 
-        personService.add(person);
+        personService.update(person);
         return new ResponseEntity<>(new DataResponse<>(new ResultResponse("success")), HttpStatus.OK);
     }
 }

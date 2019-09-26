@@ -3,25 +3,32 @@ package com.albina.springproject.filter;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.Predicate;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 public class FilterSpecificationBuilder<E> implements SpecificationBuilder<E> {
 
-    private final Map<String, Object> params;
+    private final Set<SearchCriteria> params;
 
     public FilterSpecificationBuilder() {
-        params = new HashMap<>();
+        params = new HashSet<>();
     }
 
     public void addFilter(SearchCriteria criteria) {
-        params.put(criteria.getKey(), criteria.getValue());
+        params.add(criteria);
     }
 
     public Specification<E> build(){
         return (root, criteriaQuery, criteriaBuilder) -> {
-            Predicate[] predicates = params.entrySet().stream()
-                    .map(crit -> criteriaBuilder.equal(root.get(crit.getKey()), crit.getValue())).toArray(Predicate[]::new);
+            Predicate[] predicates = params.stream()
+                    .map(crit -> {
+                        switch (crit.getOperation()) {
+                            case HAS:
+                                return criteriaBuilder.isMember(crit.getValue(), root.get(crit.getKey()));
+                            default:
+                                return criteriaBuilder.equal(root.get(crit.getKey()), crit.getValue());
+                        }
+                    }).toArray(Predicate[]::new);
 
             return criteriaBuilder.and(predicates);
         };

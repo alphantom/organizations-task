@@ -5,6 +5,8 @@ import com.albina.springproject.filter.SearchCriteria;
 import com.albina.springproject.filter.SpecificationBuilder;
 import com.albina.springproject.models.Organization;
 import com.albina.springproject.repositories.OrganizationRepository;
+import com.albina.springproject.view.OrganizationItemView;
+import com.albina.springproject.view.OrganizationListView;
 import com.albina.springproject.view.OrganizationView;
 import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
@@ -27,13 +29,13 @@ public class OrganizationServiceImpl implements OrganizationService {
     private MapperFacade mapperFactory = new DefaultMapperFactory.Builder().build().getMapperFacade();
 
     @Override
-    public void add(@Valid OrganizationView organizationView) {
+    public void add(@Valid OrganizationItemView organizationView) {
         Organization organization = mapperFactory.map(organizationView, Organization.class);
         organizationRepository.save(organization);
     }
 
     @Override
-    public void update(@Valid OrganizationView organizationView) {
+    public void update(@Valid OrganizationItemView organizationView) {
         Optional<Organization> optionalOrganization = organizationRepository.findById(organizationView.id);
 
         if (optionalOrganization.isPresent()) {
@@ -44,7 +46,7 @@ public class OrganizationServiceImpl implements OrganizationService {
             organization.setInn(organizationView.inn);
             organization.setKpp(organizationView.kpp);
             organization.setAddress(organizationView.address);
-            if (null != organizationView.phone) organization.setPhone(organizationView.phone);
+            organization.setPhone(organizationView.phone);
             if (null != organizationView.isActive) organization.setIsActive(organizationView.isActive);
 
             organizationRepository.save(organization);
@@ -54,26 +56,26 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     @Override
-    public OrganizationView get(Long id) {
+    public OrganizationItemView get(Long id) {
         Optional<Organization> optionalOrganization = organizationRepository.findById(id);
         if (optionalOrganization.isPresent()) {
-            return mapperFactory.map(optionalOrganization.get(), OrganizationView.class);
+            return mapperFactory.map(optionalOrganization.get(), OrganizationItemView.class);
         } else {
             throw new NoSuchElementException("Organization with id = " + id + " can't be found");
         }
     }
 
     @Override
-    public List<OrganizationView> all() {
+    public List<OrganizationListView> all() {
         List<Organization> organizations = organizationRepository.findAll();
 
         return organizations.stream()
-                .map(org -> mapperFactory.map(org, OrganizationView.class))
+                .map(org -> mapperFactory.map(org, OrganizationListView.class))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<OrganizationView> getFilteredList(Map<String, Object> filter) {
+    public List<OrganizationListView> getFilteredList(Map<String, Object> filter) {
         if (!filter.containsKey("name") || null == filter.get("name") || filter.get("name").equals("")) {
             throw new IllegalArgumentException("Required parameter 'name' is missing");
         }
@@ -83,7 +85,7 @@ public class OrganizationServiceImpl implements OrganizationService {
                 .forEach(item -> spec.addFilter(new SearchCriteria(item.getKey(), item.getValue())));
 
         return organizationRepository.findAll(spec.build()).stream()
-                .map(org -> mapperFactory.map(org, OrganizationView.class))
+                .map(org -> mapperFactory.map(org, OrganizationListView.class))
                 .collect(Collectors.toList());
     }
 }

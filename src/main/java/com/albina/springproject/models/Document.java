@@ -1,15 +1,33 @@
 package com.albina.springproject.models;
 
 import com.albina.springproject.models.catalog.DocumentType;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Parameter;
 
-import javax.persistence.*;
+import javax.persistence.Id;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Column;
+import javax.persistence.Version;
+import javax.persistence.ManyToOne;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.FetchType;
 import java.util.Date;
+import java.util.Objects;
 
 @Entity
-@Table(name = "person")
+@Table(name = "document")
 public class Document {
 
     @Id
+    @GeneratedValue(generator="generator")
+    @GenericGenerator(name="generator", strategy="foreign",parameters=@Parameter(name="property", value="person"))
     private Long id;
 
     @Column(name = "date", nullable = false)
@@ -19,18 +37,18 @@ public class Document {
     @Column(name = "number", length = 35, nullable = false)
     private String number;
 
-    @Column(name = "type_id", nullable = false, insertable = false, updatable = false)
-    private Long typeId;
+    @Column(name = "type_id", nullable = false)
+    private byte typeId;
 
     @Version
     private Integer version;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @MapsId
+    @OneToOne
+    @PrimaryKeyJoinColumn
     private Person person;
 
     @ManyToOne
-    @JoinColumn(name = "type_id")
+    @JoinColumn(name = "type_id", insertable = false, updatable = false)
     private DocumentType documentType;
 
     public Long getId() {
@@ -57,12 +75,20 @@ public class Document {
         this.number = number;
     }
 
-    public Long getTypeId() {
+    public byte getTypeId() {
         return typeId;
     }
 
-    public void setTypeId(Long typeId) {
+    public void setTypeId(byte typeId) {
         this.typeId = typeId;
+    }
+
+    public DocumentType getDocumentType() {
+        return documentType;
+    }
+
+    public void setDocumentType(DocumentType documentType) {
+        this.documentType = documentType;
     }
 
     public Person getPerson() {
@@ -73,11 +99,17 @@ public class Document {
         this.person = person;
     }
 
-    public DocumentType getDocumentType() {
-        return documentType;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Document)) return false;
+        Document that = (Document) o;
+        return Objects.equals(number, that.number) &&
+                Objects.equals(typeId, that.typeId);
     }
 
-    public void setDocumentType(DocumentType documentType) {
-        this.documentType = documentType;
+    @Override
+    public int hashCode() {
+        return Objects.hash(number, typeId);
     }
 }
