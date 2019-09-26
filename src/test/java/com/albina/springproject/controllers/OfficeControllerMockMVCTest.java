@@ -43,7 +43,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest
 @AutoConfigureMockMvc
 public class OfficeControllerMockMVCTest {
 
@@ -64,7 +64,7 @@ public class OfficeControllerMockMVCTest {
     public void generate() {
 
         Stream.generate(OrganizationSeeder::getOrganization)
-                .limit(10)
+                .limit(3)
                 .forEach(item -> {
                     Stream.generate(OfficeSeeder::getOffice).limit(3).forEach(item::addOffice);
                     organizationRepository.save(item);
@@ -91,11 +91,11 @@ public class OfficeControllerMockMVCTest {
     @Test
     public void listURL_whenGetWithOrgIdAndNameFilter_thenReturnJSONDataArray() throws Exception {
 
-        Office office = officeRepository.findById(1L);
+        Office office = officeRepository.findTopByOrderByIdDesc();
         OfficeListView ov = mapper.map(office, OfficeListView.class);
 
         Map<String, Object> filters = new HashMap<>();
-        filters.put("orgId", ov.organizationId);
+        filters.put("orgId", office.getOrganizations().iterator().next().getId());
         filters.put("name", ov.name);
         JSONObject jsonFilter = new JSONObject(filters);
 
@@ -123,8 +123,7 @@ public class OfficeControllerMockMVCTest {
 
     @Test
     public void getURL_whenIdIsExist_thenReturnJSONData() throws Exception {
-
-        Office office = officeRepository.findById(1L);
+        Office office = officeRepository.findTopByOrderByIdDesc();
         OfficeItemView ov = mapper.map(office, OfficeItemView.class);
 
         mvc.perform(get("/api/office/"+office.getId())
@@ -145,7 +144,9 @@ public class OfficeControllerMockMVCTest {
     @Test
     @Transactional
     public void saveURL_whenGetFullObject_thenReturnJSONDataSuccess() throws Exception {
-        Organization organization = organizationRepository.findById(1L).get();
+        Organization organization = OrganizationSeeder.getOrganization();
+        organizationRepository.save(organization);
+
         Office office = OfficeSeeder.getOffice(organization);
         OfficeItemView ov = mapper.map(office, OfficeItemView.class);
         mvc.perform(post("/api/office/save")
@@ -165,7 +166,9 @@ public class OfficeControllerMockMVCTest {
     @Test
     @Transactional
     public void saveURL_whenGetNotFull_thenReturnJSONDataSuccess() throws Exception {
-        Organization organization = organizationRepository.findById(1L).get();
+        Organization organization = OrganizationSeeder.getOrganization();
+        organizationRepository.save(organization);
+
         Office office = OfficeSeeder.getOfficeWithAllowedNull();
         office.addOrganization(organization);
         OfficeItemView ov = mapper.map(office, OfficeItemView.class);
@@ -203,14 +206,18 @@ public class OfficeControllerMockMVCTest {
     @Transactional
     public void updateURL_whenGetFullObject_thenReturnJSONDataSuccess() throws Exception {
 
-        Office officeToUpdate = officeRepository.findById(1L);
+        Office officeToUpdate = officeRepository.findTopByOrderByIdDesc();
         Office newOffice = OfficeSeeder.getOffice();
         officeToUpdate.setName(newOffice.getName());
         officeToUpdate.setAddress(newOffice.getAddress());
         officeToUpdate.setPhone(newOffice.getName());
         officeToUpdate.setIsActive(false);
+
+        Organization organization = OrganizationSeeder.getOrganization();
+        organizationRepository.save(organization);
+
         officeToUpdate.removeOrganizations(officeToUpdate.getOrganizations());
-        officeToUpdate.addOrganization(organizationRepository.findById(3L).get());
+        officeToUpdate.addOrganization(organization);
 
         OfficeItemView ov = mapper.map(officeToUpdate, OfficeItemView.class);
 
@@ -220,7 +227,7 @@ public class OfficeControllerMockMVCTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.result").value("success"));
 
-        Office officeUpdated = officeRepository.findById(1L);
+        Office officeUpdated = officeRepository.findById((long) officeToUpdate.getId());
 
         assertThat(officeUpdated.equals(officeToUpdate)).isTrue();
 
@@ -230,9 +237,14 @@ public class OfficeControllerMockMVCTest {
     @Transactional
     public void updateURL_whenGetNotFull_thenReturnJSONDataSuccess() throws Exception {
 
+        Office lastOffice = officeRepository.findTopByOrderByIdDesc();
         Office officeToUpdate = OfficeSeeder.getOfficeWithAllowedNull();
-        officeToUpdate.setId(1L);
-        officeToUpdate.addOrganization(organizationRepository.findById(3L).get());
+        officeToUpdate.setId(lastOffice.getId());
+
+        Organization organization = OrganizationSeeder.getOrganization();
+        organizationRepository.save(organization);
+
+        officeToUpdate.addOrganization(organization);
 
         OfficeItemView ov = mapper.map(officeToUpdate, OfficeItemView.class);
 
@@ -242,15 +254,16 @@ public class OfficeControllerMockMVCTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.result").value("success"));
 
-        Office officeUpdated = officeRepository.findById(1L);
+        Office officeUpdated = officeRepository.findById((long) officeToUpdate.getId());
         assertThat(officeUpdated.equals(officeToUpdate)).isTrue();
     }
 
     @Test
     public void updateURL_whenGetNotFull_thenReturnJSONError() throws Exception {
 
+        Office lastOffice = officeRepository.findTopByOrderByIdDesc();
         Office officeToUpdate = OfficeSeeder.getOfficeWithoutAllowedNull();
-        officeToUpdate.setId(1L);
+        officeToUpdate.setId(lastOffice.getId());
 
         mvc.perform(post("/api/office/update")
                 .contentType(MediaType.APPLICATION_JSON)

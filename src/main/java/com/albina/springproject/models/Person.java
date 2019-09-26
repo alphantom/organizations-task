@@ -127,7 +127,7 @@ public class Person {
         this.officeId = officeId;
     }
 
-    public short getCountryId() {
+    public Short getCountryId() {
         return countryId;
     }
 

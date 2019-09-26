@@ -73,9 +73,14 @@ public class PersonServiceImpl implements PersonService {
     }
 
     private Person fillPersonFields(Person person, PersonItemView view) {
+        Optional<Office> office = officeRepository.findById(view.officeId);
+        if (office.isPresent()) {
+            person.setOffice(office.get());
+        } else {
+            throw new NoSuchElementException("Office with id = " + view.officeId + " can't be found");
+        }
         person.setFirstName(view.firstName);
         person.setPosition(view.position);
-        person.setOfficeId(view.officeId);
         person.setIdentified(view.identified);
         person.setLastName(view.lastName);
         person.setMiddleName(view.middleName);
@@ -121,8 +126,8 @@ public class PersonServiceImpl implements PersonService {
     public List<PersonListView> getFilteredList(Map<String, Object> filters) {
         if (!filters.containsKey("officeId") || null == filters.get("officeId") || filters.get("officeId").equals("")) {
             throw new IllegalArgumentException("Required parameter 'officeId' is missing");
-        }
-// TODO перенести фильтры в отдельный класс с валидацией
+        } // TODO: Encapsulate filters and remove this validation logic
+
         SpecificationBuilder<Person> spec = new FilterSpecificationBuilder<>();
         if (filters.containsKey("docCode")) {
             Optional<Document> optionalDocument = documentRepository.findByNumber(filters.get("docCode").toString());

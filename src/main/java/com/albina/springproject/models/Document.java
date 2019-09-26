@@ -105,13 +105,11 @@ public class Document {
         if (!(o instanceof Document)) return false;
         Document that = (Document) o;
         return Objects.equals(number, that.number) &&
-                Objects.equals(date, that.date) &&
-                Objects.equals(typeId, that.typeId) &&
-                Objects.equals(id, that.id);
+                Objects.equals(typeId, that.typeId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(number, date, typeId, id);
+        return Objects.hash(number, typeId);
     }
 }

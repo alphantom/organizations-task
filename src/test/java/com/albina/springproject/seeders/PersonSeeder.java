@@ -20,9 +20,27 @@ public class PersonSeeder {
         Document doc = DocumentSeeder.getDocument();
         person.setDocument(doc);
         doc.setPerson(person);
-//        person.getDocument().
         return person;
     }
+
+    public static Person getPersonWithAllowedNull() {
+        Faker faker = new Faker();
+        Person person = new Person();
+        person.setFirstName(faker.name().firstName());
+        person.setPosition(faker.job().position());
+        person.setIdentified(true);
+
+        return person;
+    }
+
+    public static Person getPersonWithoutAllowedNull() {
+        Faker faker = new Faker();
+        Person person = new Person();
+        person.setLastName(faker.name().lastName());
+        person.setMiddleName(faker.name().firstName());
+        return person;
+    }
+
 //
 //    public static Office getOffice(Organization organization) {
 //        Office office = getOffice();

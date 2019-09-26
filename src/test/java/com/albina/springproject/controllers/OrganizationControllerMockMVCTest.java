@@ -3,8 +3,8 @@ package com.albina.springproject.controllers;
 import com.albina.springproject.models.Organization;
 import com.albina.springproject.repositories.OrganizationRepository;
 import com.albina.springproject.seeders.OrganizationSeeder;
-import com.albina.springproject.services.OrganizationService;
-import com.albina.springproject.view.OrganizationView;
+import com.albina.springproject.view.OrganizationItemView;
+import com.albina.springproject.view.OrganizationListView;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
@@ -35,7 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest
 @AutoConfigureMockMvc
 public class OrganizationControllerMockMVCTest {
 
@@ -63,8 +63,9 @@ public class OrganizationControllerMockMVCTest {
 
     @Test
     public void listURL_whenGetWithNameFilter_thenReturnJSONDataNull() throws Exception {
-        Map<String, Object> filters = new HashMap<>();
-
+        // given: filter with dummy data
+        // when: list by given filter
+        // then: return empty list
         mvc.perform(post("/api/organization/list")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"name\": \"org1\"}"))
@@ -74,7 +75,7 @@ public class OrganizationControllerMockMVCTest {
 
     @Test
     public void listURL_whenGetWithNameFilter_thenReturnJSONDataArray() throws Exception {
-
+        // given: filter with stored organization's data
         Organization organization = OrganizationSeeder.getOrganization();
         organizationRepository.save(organization);
 
@@ -85,8 +86,9 @@ public class OrganizationControllerMockMVCTest {
 
         JSONObject jsonFilter = new JSONObject(filters);
 
-        OrganizationView ov = mapper.map(organization, OrganizationView.class);
-
+        OrganizationListView ov = mapper.map(organization, OrganizationListView.class);
+        // when: list by given filter
+        // then: list with one organization
         mvc.perform(post("/api/organization/list")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonFilter.toJSONString()))
@@ -96,14 +98,15 @@ public class OrganizationControllerMockMVCTest {
 
     @Test
     public void listURL_whenGetWithoutNameFilter_thenReturnJSONError() throws Exception {
-
+        // given: filter with empty parameters
         Map<String, Object> filters = new HashMap<>();
         filters.put("name", null );
         filters.put("inn", null);
         filters.put("isActive", null);
 
         JSONObject jsonFilter = new JSONObject(filters);
-
+        // when: list by given filter
+        // then: error with message about required parameters
         mvc.perform(post("/api/organization/list")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonFilter.toJSONString()))
@@ -113,12 +116,13 @@ public class OrganizationControllerMockMVCTest {
 
     @Test
     public void getURL_whenIdIsExist_thenReturnJSONData() throws Exception {
-
+        // given: stored organization
         Organization organization = OrganizationSeeder.getOrganization();
         organizationRepository.save(organization);
 
-        OrganizationView ov = mapper.map(organization, OrganizationView.class);
-
+        OrganizationItemView ov = mapper.map(organization, OrganizationItemView.class);
+        // when: get organization by it's id
+        // then: return organization data
         mvc.perform(get("/api/organization/"+organization.getId())
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -136,16 +140,16 @@ public class OrganizationControllerMockMVCTest {
 
     @Test
     public void saveURL_whenGetFullObject_thenReturnJSONDataSuccess() throws Exception {
-
+        // given: new fully filled organization
         Organization organization = OrganizationSeeder.getOrganization();
-        OrganizationView ov = mapper.map(organization, OrganizationView.class);
-
+        OrganizationItemView ov = mapper.map(organization, OrganizationItemView.class);
+        // when: save given organization
         mvc.perform(post("/api/organization/save")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonMapper.writeValueAsString(ov)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.result").value("success"));
-
+        // then: organization was stored
         boolean isSaved = organizationRepository.exists(Example.of(organization, ExampleMatcher.matching()
                 .withIgnorePaths("id", "version")));
 
@@ -154,15 +158,15 @@ public class OrganizationControllerMockMVCTest {
 
     @Test
     public void saveURL_whenGetNotFull_thenReturnJSONDataSuccess() throws Exception {
-
+        // given: new organization with necessary attributes
         Organization organization = OrganizationSeeder.getOrganizationWithDefault();
-
+        // when: save given organization
         mvc.perform(post("/api/organization/save")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonMapper.writeValueAsString(organization)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.result").value("success"));
-
+        // then: organization was stored
         boolean isSaved = organizationRepository.exists(Example.of(organization, ExampleMatcher.matching()
                 .withIgnorePaths("id", "version")));
 
@@ -171,15 +175,15 @@ public class OrganizationControllerMockMVCTest {
 
     @Test
     public void saveURL_whenGetNotFull_thenReturnJSONError() throws Exception {
-
+        // given: new organization without necessary attributes
         Organization organization = OrganizationSeeder.getOrganizationWithoutDefault();
-
+        // when: save given organization
         mvc.perform(post("/api/organization/save")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonMapper.writeValueAsString(organization)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.error").exists());
-
+        // then: error, organization wasn't saved
         boolean isSaved = organizationRepository.exists(Example.of(organization, ExampleMatcher.matching()
                 .withIgnorePaths("id", "version")));
 
@@ -188,16 +192,20 @@ public class OrganizationControllerMockMVCTest {
 
     @Test
     public void updateURL_whenGetFullObject_thenReturnJSONDataSuccess() throws Exception {
+        // given: stored organization
+        Organization newOrganization = OrganizationSeeder.getOrganization();
+        organizationRepository.save(newOrganization);
 
         Organization organizationToUpdate = OrganizationSeeder.getOrganization();
-        organizationRepository.save(organizationToUpdate);
+        organizationToUpdate.setId(newOrganization.getId());
 
+        //when: update organization with new data
         mvc.perform(post("/api/organization/update")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonMapper.writeValueAsString(organizationToUpdate)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.result").value("success"));
-
+        // then: organization was updated
         Optional<Organization> optionalOrganization = organizationRepository.findById(organizationToUpdate.getId());
 
         assertThat(optionalOrganization.get().equals(organizationToUpdate)).isTrue();
@@ -206,16 +214,19 @@ public class OrganizationControllerMockMVCTest {
 
     @Test
     public void updateURL_whenGetNotFull_thenReturnJSONDataSuccess() throws Exception {
+        // given: stored organization
+        Organization organization = OrganizationSeeder.getOrganization();
+        organizationRepository.save(organization);
 
         Organization organizationToUpdate = OrganizationSeeder.getOrganizationWithDefault();
-        organizationToUpdate.setId(1L);
-
+        organizationToUpdate.setId(organization.getId());
+        // when: update organization with only necessary data in json
         mvc.perform(post("/api/organization/update")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonMapper.writeValueAsString(organizationToUpdate)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.result").value("success"));
-
+        // then: organization updated
         Optional<Organization> optionalOrganization = organizationRepository.findById(organizationToUpdate.getId());
         Organization organizationUpdated = optionalOrganization.get();
         organizationToUpdate.setIsActive(organizationUpdated.getIsActive());
@@ -224,15 +235,19 @@ public class OrganizationControllerMockMVCTest {
 
     @Test
     public void updateURL_whenGetNotFull_thenReturnJSONError() throws Exception {
+        // given: stored organization
+        Organization organization = OrganizationSeeder.getOrganization();
+        organizationRepository.save(organization);
 
         Organization organizationToUpdate = OrganizationSeeder.getOrganizationWithoutDefault();
-        organizationToUpdate.setId(1L);
+        organizationToUpdate.setId(organization.getId());
+        // when: update organization without necessary data in json
         mvc.perform(post("/api/organization/update")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonMapper.writeValueAsString(organizationToUpdate)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.error").exists());
-
+        // then: error
         Optional<Organization> optionalOrganization = organizationRepository.findById(organizationToUpdate.getId());
         assertThat(optionalOrganization.get().equals(organizationToUpdate)).isFalse();
 

@@ -18,9 +18,6 @@ public class OfficeView {
 
     public Boolean isActive;
 
-    @NotNull(message = "Office's organization id can't be null")
-    public Long organizationId;
-
     public OfficeView() {}
 
     public OfficeView(Office office) {
@@ -28,8 +25,6 @@ public class OfficeView {
         name = office.getName();
         phone = office.getPhone();
         isActive = office.isActive();
-        if (!office.getOrganizations().isEmpty())
-            organizationId = office.getOrganizations().iterator().next().getId();
     }
 
     @Override
@@ -38,7 +33,6 @@ public class OfficeView {
         sb.append("id=").append(id);
         sb.append(", name=").append(name);
         sb.append(", phone=").append(phone);
-        sb.append(", organizationId=").append(organizationId);
         sb.append(", isActive=").append(isActive);
         sb.append('}');
         return sb.toString();

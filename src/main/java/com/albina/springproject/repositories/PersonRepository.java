@@ -1,6 +1,8 @@
 package com.albina.springproject.repositories;
 
+import com.albina.springproject.models.Office;
 import com.albina.springproject.models.Person;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -10,4 +12,7 @@ public interface PersonRepository extends JpaRepository<Person, Long>, JpaSpecif
             "LEFT JOIN FETCH p.country " +
             "LEFT JOIN FETCH p.document WHERE p.id = ?1")
     public Person findById(long id);
+
+    @EntityGraph(attributePaths = { "country", "document" })
+    public Person findTopByOrderByIdDesc();
 }

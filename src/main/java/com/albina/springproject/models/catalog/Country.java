@@ -19,6 +19,13 @@ public class Country {
     @Column(length = 70, nullable = false)
     private String name;
 
+    public Country(){}
+
+    public Country(Short code, String name){
+        this.code = code;
+        this.name = name;
+    }
+
     public short getCode() {
         return code;
     }
