@@ -80,8 +80,6 @@ public class JsonSerializationTest {
         listJson.put("phone", office.getPhone());
         listJson.put("isActive", office.isActive());
 
-        System.out.println(itemJson.toString());
-        System.out.println(jsonMapper.writeValueAsString(itemView));
         assertThat(jsonMapper.readValue(itemJson.toString(), Map.class).equals(jsonMapper.readValue(jsonMapper.writeValueAsString(itemView), Map.class))).isTrue();
         assertThat(jsonMapper.readValue(listJson.toString(), Map.class).equals(jsonMapper.readValue(jsonMapper.writeValueAsString(listView), Map.class))).isTrue();
     }
