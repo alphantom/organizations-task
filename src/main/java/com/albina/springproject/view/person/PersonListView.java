@@ -1,4 +1,4 @@
-package com.albina.springproject.view;
+package com.albina.springproject.view.person;
 
 public class PersonListView extends PersonView {
 }

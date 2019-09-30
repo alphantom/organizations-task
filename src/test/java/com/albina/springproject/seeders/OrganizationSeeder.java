@@ -1,14 +1,7 @@
 package com.albina.springproject.seeders;
 
 import com.albina.springproject.models.Organization;
-import com.albina.springproject.repositories.OrganizationRepository;
-import com.albina.springproject.view.OrganizationView;
 import com.github.javafaker.Faker;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class OrganizationSeeder {
 

@@ -1,12 +1,8 @@
 package com.albina.springproject.services;
 
-import com.albina.springproject.filter.FilterSpecificationBuilder;
-import com.albina.springproject.filter.SearchCriteria;
-import com.albina.springproject.filter.SearchOperation;
-import com.albina.springproject.filter.SpecificationBuilder;
+import com.albina.springproject.filter.filters.Filter;
 import com.albina.springproject.models.Document;
 import com.albina.springproject.models.Office;
-import com.albina.springproject.models.Organization;
 import com.albina.springproject.models.Person;
 import com.albina.springproject.models.catalog.DocumentType;
 import com.albina.springproject.repositories.DocumentRepository;
@@ -15,8 +11,8 @@ import com.albina.springproject.repositories.PersonRepository;
 import com.albina.springproject.repositories.catalog.CountryRepository;
 import com.albina.springproject.repositories.catalog.DocumentTypeRepository;
 import com.albina.springproject.view.CustomMappers.PersonItemMapper;
-import com.albina.springproject.view.PersonItemView;
-import com.albina.springproject.view.PersonListView;
+import com.albina.springproject.view.person.PersonItemView;
+import com.albina.springproject.view.person.PersonListView;
 import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -123,34 +119,10 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
-    public List<PersonListView> getFilteredList(Map<String, Object> filters) {
-        if (!filters.containsKey("officeId") || null == filters.get("officeId") || filters.get("officeId").equals("")) {
-            throw new IllegalArgumentException("Required parameter 'officeId' is missing");
-        } // TODO: Encapsulate filters and remove this validation logic
-
-        SpecificationBuilder<Person> spec = new FilterSpecificationBuilder<>();
-        if (filters.containsKey("docCode")) {
-            Optional<Document> optionalDocument = documentRepository.findByNumber(filters.get("docCode").toString());
-            if (optionalDocument.isPresent()) {
-                spec.addFilter(new SearchCriteria("id", SearchOperation.EQUALS, optionalDocument.get().getId()));
-                filters.remove("docCode");
-            } else {
-                throw new NoSuchElementException("Document with number = " + filters.get("docCode") + " can't be found");
-            }
-        }
-
-        if (filters.containsKey("citizenshipCode")) {
-            spec.addFilter(new SearchCriteria("countryId", SearchOperation.EQUALS, filters.get("citizenshipCode")));
-            filters.remove("citizenshipCode");
-        }
-
-        filters.entrySet().stream().filter((item) -> null != item.getValue() && !item.getValue().equals(""))
-                .forEach(item -> spec.addFilter(new SearchCriteria(item.getKey(), item.getValue())));
-
-        return personRepository.findAll(spec.build()).stream()
+    public List<PersonListView> getFilteredList(@Valid Filter<Person> filter) {
+        return personRepository.findAll(filter.getFilter()).stream()
                 .map(org -> mapperFactory.map(org, PersonListView.class))
                 .collect(Collectors.toList());
-
     }
 
     @Override

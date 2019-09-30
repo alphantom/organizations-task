@@ -1,14 +1,9 @@
 package com.albina.springproject.view.CustomMappers;
 
-import com.albina.springproject.models.Document;
 import com.albina.springproject.models.Person;
-import com.albina.springproject.models.catalog.DocumentType;
-import com.albina.springproject.view.PersonItemView;
+import com.albina.springproject.view.person.PersonItemView;
 import ma.glasnost.orika.CustomMapper;
 import ma.glasnost.orika.MappingContext;
-
-import java.util.NoSuchElementException;
-import java.util.Optional;
 
 public class PersonItemCustomMapper extends CustomMapper<PersonItemView, Person> {
 

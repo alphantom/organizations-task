@@ -1,9 +1,5 @@
 package com.albina.springproject.view.CustomMappers;
 
-import com.albina.springproject.models.Document;
-import com.albina.springproject.models.Person;
-import com.albina.springproject.view.DocumentView;
-import com.albina.springproject.view.PersonItemView;
 import ma.glasnost.orika.MapperFactory;
 import ma.glasnost.orika.impl.ConfigurableMapper;
 

@@ -1,5 +1,6 @@
-package com.albina.springproject.services;
+package com.albina.springproject.services.contracts;
 
+import com.albina.springproject.filter.filters.Filter;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
@@ -13,40 +14,27 @@ import java.util.Map;
  * @param <I> id
  */
 @Validated
-public interface CrudService<S, F, I> {
+public interface CrudService<V, I> {
 
     /**
      * Save entity to database
      *
      * @param view
      */
-    void add(@Valid F view);
+    void add(@Valid V view);
 
     /**
      * Update entity
      *
      * @param view
      */
-    void update(@Valid F view);
+    void update(@Valid V view);
 
     /**
      * Get entity by id
      * @param id
      * @return V
      */
-    F get(I id);
+    V get(I id);
 
-    /**
-     * Get filtered list of entities
-     *
-     * @return {V}
-     */
-    List<S> getFilteredList(Map<String, Object> filters);
-
-    /**
-     * Get full list of entities
-     *
-     * @return {V}
-     */
-    List<S> all();
 }

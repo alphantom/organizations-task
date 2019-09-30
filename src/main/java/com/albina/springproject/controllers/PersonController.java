@@ -2,8 +2,9 @@ package com.albina.springproject.controllers;
 
 import com.albina.springproject.common.DataResponse;
 import com.albina.springproject.common.ResultResponse;
+import com.albina.springproject.filter.filters.PersonFilter;
 import com.albina.springproject.services.PersonService;
-import com.albina.springproject.view.PersonItemView;
+import com.albina.springproject.view.person.PersonItemView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +15,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PostMapping;
 
-import java.util.Map;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -34,7 +34,7 @@ public class PersonController {
     }
 
     @PostMapping("/list")
-    public ResponseEntity list(@RequestBody Map<String, Object> requestBody) {
+    public ResponseEntity list(@RequestBody PersonFilter requestBody) {
         return new ResponseEntity<>(new DataResponse<>(personService.getFilteredList(requestBody)), HttpStatus.OK);
     }
 

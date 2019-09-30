@@ -1,4 +1,4 @@
-package com.albina.springproject.view;
+package com.albina.springproject.view.office;
 
 import com.albina.springproject.models.Office;
 
