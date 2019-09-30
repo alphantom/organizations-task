@@ -7,7 +7,7 @@ create table if not exists organization (
     address     varchar(255) not null,
     phone       varchar(15),
     active      boolean not null default true,
-    version     integer not null,
+    version     integer not null default 1,
     constraint  uk_inn unique (inn)
 );
 comment on table organization is 'Организация';
@@ -18,7 +18,7 @@ create table if not exists office (
     address     varchar(255) not null,
     phone       varchar(15),
     active      boolean not null default true,
-    version     integer not null,
+    version     integer not null default 1
 );
 comment on table office is 'Офис';
 
@@ -53,7 +53,7 @@ create table if not exists person (
     identified   boolean,
     off_id       bigint,
     country_id   smallint,
-    version      integer not null,
+    version      integer not null default 1,
     foreign key  (off_id) references office(id),
     foreign key  (country_id) references country(code)
 );
@@ -64,7 +64,7 @@ create table if not exists document (
     type_id     tinyint not null,
     date        date not null,
     number      varchar(35) not null,
-    version     integer not null,
+    version     integer not null default 1,
     foreign key (type_id) references document_type(code),
     foreign key (id) references person(id)
 );

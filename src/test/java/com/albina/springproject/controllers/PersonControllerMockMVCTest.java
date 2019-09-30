@@ -4,11 +4,7 @@ import com.albina.springproject.models.Office;
 import com.albina.springproject.models.Person;
 import com.albina.springproject.models.catalog.Country;
 import com.albina.springproject.models.catalog.DocumentType;
-import com.albina.springproject.repositories.OfficeRepository;
-import com.albina.springproject.repositories.OrganizationRepository;
-import com.albina.springproject.repositories.PersonRepository;
 import com.albina.springproject.seeders.OfficeSeeder;
-import com.albina.springproject.seeders.OrganizationSeeder;
 import com.albina.springproject.seeders.PersonSeeder;
 import com.albina.springproject.view.person.PersonItemView;
 import com.albina.springproject.view.person.PersonListView;
@@ -16,23 +12,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
 import net.minidev.json.JSONObject;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
@@ -45,53 +38,25 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
+@AutoConfigureTestEntityManager
+@Transactional
 public class PersonControllerMockMVCTest {
 
     @Autowired
     private MockMvc mvc;
 
     @Autowired
-    private PersonRepository personRepository;
-
-    @Autowired
-    private OfficeRepository officeRepository;
-
-    @Autowired
-    private OrganizationRepository organizationRepository;
+    private TestEntityManager entityManager;
 
     private MapperFacade mapper = new DefaultMapperFactory.Builder().build().getMapperFacade();
 
     private ObjectMapper jsonMapper = new ObjectMapper();
 
-    @Before
-    public void generate() {
-
-        Stream.generate(OrganizationSeeder::getOrganization)
-                .limit(2)
-                .forEach(item -> {
-                    Stream.generate(OfficeSeeder::getOffice).limit(2).forEach(office -> {
-                        Stream.generate(PersonSeeder::getPerson).limit(3).forEach(person -> {
-                            office.addPerson(person);
-                            person.setOffice(office);
-                        });
-                        item.addOffice(office);
-                    });
-                    organizationRepository.save(item);
-                });
-    }
-
-    @After
-    public void clearData() {
-        personRepository.deleteAll();
-        officeRepository.deleteAll();
-        organizationRepository.deleteAll();
-    }
-
     @Test
     public void listURL_whenGetWithOfficeIdFilter_thenReturnJSONDataNull() throws Exception {
         // given: new office
         Office office = OfficeSeeder.getOffice();
-        officeRepository.save(office);
+        entityManager.persistAndFlush(office);
         // when: filter users by new office
         // then: return empty list
         mvc.perform(post("/api/user/list")
@@ -104,7 +69,7 @@ public class PersonControllerMockMVCTest {
     @Test
     public void listURL_whenGetWithFilledFilter_thenReturnJSONDataArray() throws Exception {
         // given: stored person
-        Person person = personRepository.findTopByOrderByIdDesc();
+        Person person = entityManager.find(Person.class, 1L);
         // when: filter by given person's fields
         Map<String, Object> filters = new HashMap<>();
         filters.put("officeId", person.getOfficeId());
@@ -144,7 +109,7 @@ public class PersonControllerMockMVCTest {
     @Test
     public void getURL_whenIdIsExist_thenReturnJSONData() throws Exception {
         // given: stored person
-        Person person = personRepository.findTopByOrderByIdDesc();
+        Person person = entityManager.find(Person.class, 1L);
         PersonItemView ov = mapper.map(person, PersonItemView.class);
         // when: get person by person's id
         // then: return given person's data
@@ -166,48 +131,36 @@ public class PersonControllerMockMVCTest {
     public void saveURL_whenGetFullObject_thenReturnJSONDataSuccess() throws Exception {
         // given: new person with fully filled attributes
         Person person = PersonSeeder.getPerson();
-        person.setOfficeId(officeRepository.findTopByOrderByIdDesc().getId());
+        person.setOfficeId(1L);
         person.getDocument().setDocumentType(new DocumentType((byte) 2, "Паспорт гражданина РФ"));
         person.setCountry(new Country((short) 643, "Российская Федерация"));
 
         PersonItemView view = mapper.map(person, PersonItemView.class);
         // when: save new person
+        // then: return success result
         mvc.perform(post("/api/user/save")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonMapper.writeValueAsString(view)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.result").value("success"));
 
-        // then: the person was stored to database
-        Optional<Person> optionalPerson = personRepository.findOne(Example.of(person, ExampleMatcher.matching()
-                .withIgnorePaths("id", "version", "document")));
-        assertThat(optionalPerson.isPresent()).isTrue();
-
-        Person personSaved = optionalPerson.get();
-        assertThat(personSaved.equals(person)).isTrue();
     }
 
     @Test
     public void saveURL_whenGetNotFull_thenReturnJSONDataSuccess() throws Exception {
         // given: a person with filled only necessary attributes
         Person person = PersonSeeder.getPersonWithAllowedNull();
-        person.setOfficeId(officeRepository.findTopByOrderByIdDesc().getId());
+        person.setOfficeId(1L);
 
         PersonItemView view = mapper.map(person, PersonItemView.class);
         // when: save new person
+        // then: return success result
         mvc.perform(post("/api/user/save")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonMapper.writeValueAsString(view)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.result").value("success"));
 
-        // then: the person was stored to database
-        Optional<Person> optionalPerson = personRepository.findOne(Example.of(person, ExampleMatcher.matching()
-                .withIgnorePaths("id", "version", "document", "countryId")));
-        assertThat(optionalPerson.isPresent()).isTrue();
-
-        Person personSaved = optionalPerson.get();
-        assertThat(personSaved.equals(person)).isTrue();
     }
 
     @Test
@@ -229,13 +182,13 @@ public class PersonControllerMockMVCTest {
     @Test
     public void updateURL_whenGetFullObject_thenReturnJSONDataSuccess() throws Exception {
         // given: stored person to update and new person with new data
-        Person personToUpdate = personRepository.findTopByOrderByIdDesc();
+        Person personToUpdate = entityManager.find(Person.class, 1L);
         Person personValues = PersonSeeder.getPerson();
         personToUpdate.setFirstName(personValues.getFirstName());
         personToUpdate.setLastName(personValues.getLastName());
         personToUpdate.setMiddleName(personValues.getMiddleName());
         personToUpdate.setPosition(personValues.getPosition());
-        personToUpdate.setOfficeId(officeRepository.findTopByOrderByIdDesc().getId());
+        personToUpdate.setOfficeId(1L);
         personToUpdate.setDocument(personValues.getDocument());
         personToUpdate.getDocument().setDocumentType(new DocumentType((byte) 2, "Паспорт гражданина РФ"));
 
@@ -247,7 +200,7 @@ public class PersonControllerMockMVCTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.result").value("success"));
         // then: the person was updated
-        Person personUpdated = personRepository.findById((long) personToUpdate.getId());
+        Person personUpdated = entityManager.find(Person.class, 1L);
 
         assertThat(personUpdated.equals(personToUpdate)).isTrue();
     }
@@ -255,7 +208,7 @@ public class PersonControllerMockMVCTest {
     @Test
     public void updateURL_whenGetNotFull_thenReturnJSONError() throws Exception {
         // given: stored person and person without necessary attributes
-        Person personToUpdate = personRepository.findTopByOrderByIdDesc();
+        Person personToUpdate = entityManager.find(Person.class, 1L);
 
         Person person = PersonSeeder.getPersonWithoutAllowedNull();
         person.setId(personToUpdate.getId());
