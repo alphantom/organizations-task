@@ -7,10 +7,8 @@ import com.albina.springproject.repositories.OfficeRepository;
 import com.albina.springproject.repositories.OrganizationRepository;
 import com.albina.springproject.seeders.OfficeSeeder;
 import com.albina.springproject.seeders.OrganizationSeeder;
-import com.albina.springproject.services.OfficeService;
-import com.albina.springproject.view.OfficeItemView;
-import com.albina.springproject.view.OfficeListView;
-import com.albina.springproject.view.OfficeView;
+import com.albina.springproject.view.office.OfficeItemView;
+import com.albina.springproject.view.office.OfficeListView;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
@@ -78,7 +76,7 @@ public class OfficeControllerMockMVCTest {
     }
 
     @Test
-    public void listURL_whenGetWithNameFilter_thenReturnJSONDataNull() throws Exception {
+    public void listURL_whenGetWithOrgIdFilter_thenReturnJSONDataNull() throws Exception {
         Organization organization = OrganizationSeeder.getOrganization();
         organizationRepository.save(organization);
         mvc.perform(post("/api/office/list")

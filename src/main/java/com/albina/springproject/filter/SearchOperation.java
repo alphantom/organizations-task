@@ -5,5 +5,6 @@ public enum SearchOperation {
     LESS_THEN,
     MORE_THEN,
     BETWEEN,
-    HAS
+    HAS,
+    JOIN_HAS
 }

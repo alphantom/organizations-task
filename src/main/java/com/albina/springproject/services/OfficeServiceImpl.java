@@ -1,16 +1,13 @@
 package com.albina.springproject.services;
 
-import com.albina.springproject.filter.FilterSpecificationBuilder;
-import com.albina.springproject.filter.SearchCriteria;
-import com.albina.springproject.filter.SearchOperation;
-import com.albina.springproject.filter.SpecificationBuilder;
+import com.albina.springproject.filter.*;
+import com.albina.springproject.filter.filters.Filter;
 import com.albina.springproject.models.Office;
 import com.albina.springproject.models.Organization;
 import com.albina.springproject.repositories.OfficeRepository;
 import com.albina.springproject.repositories.OrganizationRepository;
-import com.albina.springproject.view.OfficeItemView;
-import com.albina.springproject.view.OfficeListView;
-import com.albina.springproject.view.OfficeView;
+import com.albina.springproject.view.office.OfficeItemView;
+import com.albina.springproject.view.office.OfficeListView;
 import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,24 +87,10 @@ public class OfficeServiceImpl implements OfficeService{
     }
 
     @Override
-    public List<OfficeListView> getFilteredList(Map<String, Object> filter) {
-        if (!filter.containsKey("orgId") || null == filter.get("orgId")) {
-            throw new IllegalArgumentException("Required parameter 'orgId' is missing");
-        }
+     public List<OfficeListView> getFilteredList(@Valid Filter<Office> filter) {
 
-        SpecificationBuilder<Office> spec = new FilterSpecificationBuilder<>();
-        Optional<Organization> optionalOrganization = organizationRepository.findById(Long.valueOf(filter.get("orgId").toString()));
-        if (optionalOrganization.isPresent()) {
-            spec.addFilter(new SearchCriteria("organizations", SearchOperation.HAS, optionalOrganization.get()));
-            filter.remove("orgId");
-        } else {
-            throw new NoSuchElementException("Organization with id = " + filter.get("orgId") + " can't be found");
-        }
-        filter.entrySet().stream().filter(item -> null != item.getValue() && !item.getValue().equals(""))
-                .forEach(item -> spec.addFilter(new SearchCriteria(item.getKey(), item.getValue())));
-
-        return officeRepository.findAll(spec.build()).stream()
-                .map(org -> mapperFactory.map(org, OfficeListView.class))
+        return officeRepository.findAll(filter.getFilter()).stream()
+                .map(office -> mapperFactory.map(office, OfficeListView.class))
                 .collect(Collectors.toList());
     }
 }

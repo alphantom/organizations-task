@@ -1,13 +1,11 @@
-package com.albina.springproject.view;
+package com.albina.springproject.view.person;
 
 import com.albina.springproject.models.Person;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class PersonItemView extends PersonView {
 

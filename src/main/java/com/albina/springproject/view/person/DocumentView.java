@@ -1,4 +1,4 @@
-package com.albina.springproject.view;
+package com.albina.springproject.view.person;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;

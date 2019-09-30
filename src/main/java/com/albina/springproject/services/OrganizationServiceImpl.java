@@ -3,11 +3,11 @@ package com.albina.springproject.services;
 import com.albina.springproject.filter.FilterSpecificationBuilder;
 import com.albina.springproject.filter.SearchCriteria;
 import com.albina.springproject.filter.SpecificationBuilder;
+import com.albina.springproject.filter.filters.Filter;
 import com.albina.springproject.models.Organization;
 import com.albina.springproject.repositories.OrganizationRepository;
-import com.albina.springproject.view.OrganizationItemView;
-import com.albina.springproject.view.OrganizationListView;
-import com.albina.springproject.view.OrganizationView;
+import com.albina.springproject.view.organization.OrganizationItemView;
+import com.albina.springproject.view.organization.OrganizationListView;
 import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,16 +75,8 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     @Override
-    public List<OrganizationListView> getFilteredList(Map<String, Object> filter) {
-        if (!filter.containsKey("name") || null == filter.get("name") || filter.get("name").equals("")) {
-            throw new IllegalArgumentException("Required parameter 'name' is missing");
-        }
-
-        SpecificationBuilder<Organization> spec = new FilterSpecificationBuilder<>();
-        filter.entrySet().stream().filter((item) -> null != item.getValue() && !item.getValue().equals(""))
-                .forEach(item -> spec.addFilter(new SearchCriteria(item.getKey(), item.getValue())));
-
-        return organizationRepository.findAll(spec.build()).stream()
+    public List<OrganizationListView> getFilteredList(@Valid Filter<Organization> filter) {
+        return organizationRepository.findAll(filter.getFilter()).stream()
                 .map(org -> mapperFactory.map(org, OrganizationListView.class))
                 .collect(Collectors.toList());
     }

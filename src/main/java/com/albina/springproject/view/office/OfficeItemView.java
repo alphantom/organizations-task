@@ -1,11 +1,9 @@
-package com.albina.springproject.view;
+package com.albina.springproject.view.office;
 
 import com.albina.springproject.models.Office;
-import com.albina.springproject.models.Organization;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.util.Objects;
 
 public class OfficeItemView extends OfficeView {
 

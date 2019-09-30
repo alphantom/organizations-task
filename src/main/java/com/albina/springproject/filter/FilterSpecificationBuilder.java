@@ -25,6 +25,8 @@ public class FilterSpecificationBuilder<E> implements SpecificationBuilder<E> {
                         switch (crit.getOperation()) {
                             case HAS:
                                 return criteriaBuilder.isMember(crit.getValue(), root.get(crit.getKey()));
+                            case JOIN_HAS:
+                                return criteriaBuilder.equal(root.get(crit.getJoin()).get(crit.getKey()), crit.getValue());
                             default:
                                 return criteriaBuilder.equal(root.get(crit.getKey()), crit.getValue());
                         }
