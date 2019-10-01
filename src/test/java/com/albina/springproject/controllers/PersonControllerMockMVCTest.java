@@ -98,7 +98,7 @@ public class PersonControllerMockMVCTest {
     }
 
     @Test
-    public void getURL_whenIdIsExist_thenReturnJSONData() throws Exception {
+    public void getURL_whenIdExists_thenReturnJSONData() throws Exception {
         // given: stored person
         Person person = entityManager.find(Person.class, 1L);
         // when: get person by person's id
@@ -121,7 +121,7 @@ public class PersonControllerMockMVCTest {
     }
 
     @Test
-    public void getURL_whenIdIsNotExist_thenReturnJSONError() throws Exception {
+    public void getURL_whenIdNotExists_thenReturnJSONError() throws Exception {
         mvc.perform(get("/api/user/0")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())

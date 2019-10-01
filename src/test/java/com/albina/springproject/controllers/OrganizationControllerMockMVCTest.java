@@ -87,7 +87,7 @@ public class OrganizationControllerMockMVCTest {
     }
 
     @Test
-    public void getURL_whenIdIsExist_thenReturnJSONData() throws Exception {
+    public void getURL_whenIdExists_thenReturnJSONData() throws Exception {
         // given: stored organization
         Organization organization = OrganizationUtil.getOrganization();
         entityManager.persistAndFlush(organization);
@@ -108,7 +108,7 @@ public class OrganizationControllerMockMVCTest {
     }
 
     @Test
-    public void getURL_whenIdIsNotExist_thenReturnJSONError() throws Exception {
+    public void getURL_whenIdNotExists_thenReturnJSONError() throws Exception {
 
         mvc.perform(get("/api/organization/0")
                 .contentType(MediaType.APPLICATION_JSON))
