@@ -90,7 +90,7 @@ public class OfficeControllerMockMVCTest {
     }
 
     @Test
-    public void getURL_whenIdIsExist_thenReturnJSONData() throws Exception {
+    public void getURL_whenIdExists_thenReturnJSONData() throws Exception {
         // given: stored office
         Office office = entityManager.find(Office.class, 1L);
         // when: get with it's id
@@ -106,7 +106,7 @@ public class OfficeControllerMockMVCTest {
     }
 
     @Test
-    public void getURL_whenIdIsNotExist_thenReturnJSONError() throws Exception {
+    public void getURL_whenIdNotExists_thenReturnJSONError() throws Exception {
         // given: non existing office id
         // when: get with this id
         // then: return error
