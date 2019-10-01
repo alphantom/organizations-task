@@ -1,9 +1,9 @@
-package com.albina.springproject.seeders;
+package com.albina.springproject.utils;
 
 import com.albina.springproject.models.Document;
 import com.github.javafaker.Faker;
 
-public class DocumentSeeder {
+public class DocumentUtil {
 
     public static Document getDocument() {
         Faker faker = new Faker();

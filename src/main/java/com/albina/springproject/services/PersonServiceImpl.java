@@ -10,7 +10,6 @@ import com.albina.springproject.repositories.OfficeRepository;
 import com.albina.springproject.repositories.PersonRepository;
 import com.albina.springproject.repositories.catalog.CountryRepository;
 import com.albina.springproject.repositories.catalog.DocumentTypeRepository;
-import com.albina.springproject.view.CustomMappers.PersonItemMapper;
 import com.albina.springproject.view.person.PersonItemView;
 import com.albina.springproject.view.person.PersonListView;
 import ma.glasnost.orika.MapperFacade;
@@ -47,7 +46,6 @@ public class PersonServiceImpl implements PersonService {
     @Autowired
     private OfficeRepository officeRepository;
 
-    private MapperFacade personItemMapper = new PersonItemMapper();
     private MapperFacade mapperFactory = new DefaultMapperFactory.Builder().build().getMapperFacade();
 
     @Override

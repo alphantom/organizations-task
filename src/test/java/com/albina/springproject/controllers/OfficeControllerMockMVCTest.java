@@ -3,13 +3,8 @@ package com.albina.springproject.controllers;
 
 import com.albina.springproject.models.Office;
 import com.albina.springproject.models.Organization;
-import com.albina.springproject.seeders.OfficeSeeder;
-import com.albina.springproject.seeders.OrganizationSeeder;
-import com.albina.springproject.view.office.OfficeItemView;
-import com.albina.springproject.view.office.OfficeListView;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import ma.glasnost.orika.MapperFacade;
-import ma.glasnost.orika.impl.DefaultMapperFactory;
+import com.albina.springproject.utils.OfficeUtil;
+import com.albina.springproject.utils.OrganizationUtil;
 import net.minidev.json.JSONObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,9 +17,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
@@ -47,14 +39,10 @@ public class OfficeControllerMockMVCTest {
     @Autowired
     private TestEntityManager entityManager;
 
-    private MapperFacade mapper = new DefaultMapperFactory.Builder().build().getMapperFacade();
-
-    private ObjectMapper jsonMapper = new ObjectMapper();
-
     @Test
     public void listURL_whenGetWithOrgIdFilter_thenReturnJSONDataNull() throws Exception {
         // given: organization without offices
-        Organization organization = OrganizationSeeder.getOrganization();
+        Organization organization = OrganizationUtil.getOrganization();
         entityManager.persistAndFlush(organization);
         // when: filter by it's id
         // then: offices not found
@@ -66,35 +54,37 @@ public class OfficeControllerMockMVCTest {
     }
 
     @Test
-    public void listURL_whenGetWithOrgIdAndNameFilter_thenReturnJSONDataArray() throws Exception {
+    public void listURL_whenGetWithFilledFilter_thenReturnJSONDataArray() throws Exception {
         // given: stored office
         Office office = entityManager.find(Office.class, 1L);
-        OfficeListView ov = mapper.map(office, OfficeListView.class);
+
         // when: filter with stored office fields
-        Map<String, Object> filters = new HashMap<>();
+        JSONObject filters = new JSONObject();
         filters.put("orgId", office.getOrganizations().iterator().next().getId());
-        filters.put("name", ov.name);
-        JSONObject jsonFilter = new JSONObject(filters);
+        filters.put("name", office.getName());
+        filters.put("phone", office.getPhone());
+        filters.put("isActive", office.isActive());
         // then: return the office's data
         mvc.perform(post("/api/office/list")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(jsonFilter.toJSONString()))
+                .content(filters.toJSONString()))
                 .andExpect(status().isOk())
-                .andExpect(content().string("{\"data\":["+jsonMapper.writeValueAsString(ov) +"]}"));
+                .andExpect(jsonPath("$.data[0].id").value(office.getId()))
+                .andExpect(jsonPath("$.data[0].name").value(office.getName()))
+                .andExpect(jsonPath("$.data[0].isActive").value(office.isActive()));
     }
 
     @Test
     public void listURL_whenGetWithoutOrgIdFilter_thenReturnJSONError() throws Exception {
         // given: dummy data
-        Map<String, Object> filters = new HashMap<>();
+        JSONObject filters = new JSONObject();
         filters.put("name", "office 1");
 
-        JSONObject jsonFilter = new JSONObject(filters);
         // when: filter with dummy data without required parameter
         // then: return error with that required parameter
         mvc.perform(post("/api/office/list")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(jsonFilter.toJSONString()))
+                .content(filters.toJSONString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.error").value("Required parameter 'orgId' is missing"));
     }
@@ -103,13 +93,16 @@ public class OfficeControllerMockMVCTest {
     public void getURL_whenIdIsExist_thenReturnJSONData() throws Exception {
         // given: stored office
         Office office = entityManager.find(Office.class, 1L);
-        OfficeItemView ov = mapper.map(office, OfficeItemView.class);
         // when: get with it's id
         // then: return office's data
         mvc.perform(get("/api/office/"+office.getId())
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string("{\"data\":" + jsonMapper.writeValueAsString(ov) + "}"));
+                .andExpect(jsonPath("$.data.id").value(office.getId()))
+                .andExpect(jsonPath("$.data.name").value(office.getName()))
+                .andExpect(jsonPath("$.data.phone").value(office.getPhone()))
+                .andExpect(jsonPath("$.data.address").value(office.getAddress()))
+                .andExpect(jsonPath("$.data.isActive").value(office.isActive()));
     }
 
     @Test
@@ -126,16 +119,16 @@ public class OfficeControllerMockMVCTest {
     @Test
     public void saveURL_whenGetFullObject_thenReturnJSONDataSuccess() throws Exception {
         // given: stored organization and new office entity
-        Organization organization = OrganizationSeeder.getOrganization();
+        Organization organization = OrganizationUtil.getOrganization();
         entityManager.persistAndFlush(organization);
 
-        Office office = OfficeSeeder.getOffice(organization);
-        OfficeItemView ov = mapper.map(office, OfficeItemView.class);
+        Office office = OfficeUtil.getOffice(organization);
+        JSONObject itemJson = OfficeUtil.officeToJson(office);
         // when: save them
         // then: get success message
         mvc.perform(post("/api/office/save")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(jsonMapper.writeValueAsString(ov)))
+                .content(itemJson.toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.result").value("success"));
     }
@@ -143,17 +136,17 @@ public class OfficeControllerMockMVCTest {
     @Test
     public void saveURL_whenGetNotFull_thenReturnJSONDataSuccess() throws Exception {
         // given: stored organization and new office entity with required attributes
-        Organization organization = OrganizationSeeder.getOrganization();
+        Organization organization = OrganizationUtil.getOrganization();
         entityManager.persistAndFlush(organization);
 
-        Office office = OfficeSeeder.getOfficeWithAllowedNull();
+        Office office = OfficeUtil.getOfficeWithRequired();
         office.addOrganization(organization);
-        OfficeItemView ov = mapper.map(office, OfficeItemView.class);
+        JSONObject itemJson = OfficeUtil.officeToJson(office);
         // when: save them
         // then: get success message
         mvc.perform(post("/api/office/save")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(jsonMapper.writeValueAsString(ov)))
+                .content(itemJson.toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.result").value("success"));
     }
@@ -161,12 +154,14 @@ public class OfficeControllerMockMVCTest {
     @Test
     public void saveURL_whenGetNotFull_thenReturnJSONError() throws Exception {
         // given: new office entity without required attributes
-        Office office = OfficeSeeder.getOfficeWithoutAllowedNull();
+        Office office = OfficeUtil.getOfficeWithoutRequired();
+
+        JSONObject itemJson = OfficeUtil.officeToJson(office);
         // when: save them
         // then: get error message about missed attributes information
         mvc.perform(post("/api/office/save")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(jsonMapper.writeValueAsString(office)))
+                .content(itemJson.toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.error").exists())
                 .andExpect(content().string(containsString("address")))
@@ -178,23 +173,24 @@ public class OfficeControllerMockMVCTest {
     public void updateURL_whenGetFullObject_thenReturnJSONDataSuccess() throws Exception {
         // given: the stored office which fields was reset
         Office officeToUpdate = entityManager.find(Office.class, 1L);
-        Office newOffice = OfficeSeeder.getOffice();
+        Office newOffice = OfficeUtil.getOffice();
         officeToUpdate.setName(newOffice.getName());
         officeToUpdate.setAddress(newOffice.getAddress());
         officeToUpdate.setPhone(newOffice.getName());
         officeToUpdate.setIsActive(false);
 
-        Organization organization = OrganizationSeeder.getOrganization();
+        Organization organization = OrganizationUtil.getOrganization();
         entityManager.persistAndFlush(organization);
 
         officeToUpdate.removeOrganizations(officeToUpdate.getOrganizations());
         officeToUpdate.addOrganization(organization);
 
-        OfficeItemView ov = mapper.map(officeToUpdate, OfficeItemView.class);
+        JSONObject itemJson = OfficeUtil.officeToJson(officeToUpdate);
+
         // when: update office
         mvc.perform(post("/api/office/update")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(jsonMapper.writeValueAsString(ov)))
+                .content(itemJson.toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.result").value("success"));
         // then: result is success and office is updates
@@ -208,19 +204,19 @@ public class OfficeControllerMockMVCTest {
     public void updateURL_whenGetNotFull_thenReturnJSONDataSuccess() throws Exception {
         // given: the stored office and set it's id to the new office with only required data
         Office lastOffice = entityManager.find(Office.class, 1L);
-        Office officeToUpdate = OfficeSeeder.getOfficeWithAllowedNull();
+        Office officeToUpdate = OfficeUtil.getOfficeWithRequired();
         officeToUpdate.setId(lastOffice.getId());
 
-        Organization organization = OrganizationSeeder.getOrganization();
+        Organization organization = OrganizationUtil.getOrganization();
         entityManager.persistAndFlush(organization);
 
         officeToUpdate.addOrganization(organization);
 
-        OfficeItemView ov = mapper.map(officeToUpdate, OfficeItemView.class);
+        JSONObject itemJson = OfficeUtil.officeToJson(officeToUpdate);
         // when: update office
         mvc.perform(post("/api/office/update")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(jsonMapper.writeValueAsString(ov)))
+                .content(itemJson.toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.result").value("success"));
         // then: result is success and office is updates
@@ -232,13 +228,14 @@ public class OfficeControllerMockMVCTest {
     public void updateURL_whenGetNotFull_thenReturnJSONError() throws Exception {
         // given: the stored office and set it's id to the new office without required data
         Office lastOffice = entityManager.find(Office.class, 1L);
-        Office officeToUpdate = OfficeSeeder.getOfficeWithoutAllowedNull();
+        Office officeToUpdate = OfficeUtil.getOfficeWithoutRequired();
         officeToUpdate.setId(lastOffice.getId());
+        JSONObject itemJson = OfficeUtil.officeToJson(officeToUpdate);
         // when: update office
         // then: get error message about missed attributes information
         mvc.perform(post("/api/office/update")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(jsonMapper.writeValueAsString(officeToUpdate)))
+                .content(itemJson.toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.error").exists())
                 .andExpect(content().string(containsString("address")))

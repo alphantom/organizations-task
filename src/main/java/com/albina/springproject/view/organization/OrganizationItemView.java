@@ -5,7 +5,7 @@ import javax.validation.constraints.Size;
 
 public class OrganizationItemView extends OrganizationView {
 
-    @NotEmpty(message = "Organization's full name can't be null")
+    @NotEmpty(message = "Organization's fullName can't be null")
     public String fullName;
 
     @NotEmpty(message = "Organization's inn can't be null")

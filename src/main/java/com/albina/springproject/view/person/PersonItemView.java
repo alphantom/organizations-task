@@ -26,7 +26,7 @@ public class PersonItemView extends PersonView {
     @NotNull(message = "Person's office id can't be null")
     public Long officeId;
 
-    public Short citizenshipCode        ;
+    public Short citizenshipCode;
 
     @Size(max = 70)
     public String citizenshipName;
