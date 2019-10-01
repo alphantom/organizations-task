@@ -59,7 +59,7 @@ public class OfficeFilter implements Filter<Office>{
         spec.addFilter(new SearchCriteria("organizations", SearchOperation.HAS, orgId));
 
         if (null != name && !name.equals("")) spec.addFilter(new SearchCriteria("name", SearchOperation.EQUALS, name));
-        if (null != phone && !phone.equals("")) spec.addFilter(new SearchCriteria("phone", SearchOperation.EQUALS, name));
+        if (null != phone && !phone.equals("")) spec.addFilter(new SearchCriteria("phone", SearchOperation.EQUALS, phone));
         if (null != isActive) spec.addFilter(new SearchCriteria("active", SearchOperation.EQUALS, isActive));
 
         return spec.build();

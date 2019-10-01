@@ -4,35 +4,22 @@ import com.albina.springproject.models.Office;
 import com.albina.springproject.models.Person;
 import com.albina.springproject.models.catalog.Country;
 import com.albina.springproject.models.catalog.DocumentType;
-import com.albina.springproject.repositories.OfficeRepository;
-import com.albina.springproject.repositories.OrganizationRepository;
-import com.albina.springproject.repositories.PersonRepository;
-import com.albina.springproject.seeders.OfficeSeeder;
-import com.albina.springproject.seeders.OrganizationSeeder;
-import com.albina.springproject.seeders.PersonSeeder;
-import com.albina.springproject.view.person.PersonItemView;
-import com.albina.springproject.view.person.PersonListView;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import ma.glasnost.orika.MapperFacade;
-import ma.glasnost.orika.impl.DefaultMapperFactory;
+import com.albina.springproject.utils.OfficeUtil;
+import com.albina.springproject.utils.PersonUtil;
 import net.minidev.json.JSONObject;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Stream;
+import java.text.SimpleDateFormat;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
@@ -45,53 +32,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
+@AutoConfigureTestEntityManager
+@Transactional
 public class PersonControllerMockMVCTest {
 
     @Autowired
     private MockMvc mvc;
 
     @Autowired
-    private PersonRepository personRepository;
-
-    @Autowired
-    private OfficeRepository officeRepository;
-
-    @Autowired
-    private OrganizationRepository organizationRepository;
-
-    private MapperFacade mapper = new DefaultMapperFactory.Builder().build().getMapperFacade();
-
-    private ObjectMapper jsonMapper = new ObjectMapper();
-
-    @Before
-    public void generate() {
-
-        Stream.generate(OrganizationSeeder::getOrganization)
-                .limit(2)
-                .forEach(item -> {
-                    Stream.generate(OfficeSeeder::getOffice).limit(2).forEach(office -> {
-                        Stream.generate(PersonSeeder::getPerson).limit(3).forEach(person -> {
-                            office.addPerson(person);
-                            person.setOffice(office);
-                        });
-                        item.addOffice(office);
-                    });
-                    organizationRepository.save(item);
-                });
-    }
-
-    @After
-    public void clearData() {
-        personRepository.deleteAll();
-        officeRepository.deleteAll();
-        organizationRepository.deleteAll();
-    }
+    private TestEntityManager entityManager;
 
     @Test
     public void listURL_whenGetWithOfficeIdFilter_thenReturnJSONDataNull() throws Exception {
         // given: new office
-        Office office = OfficeSeeder.getOffice();
-        officeRepository.save(office);
+        Office office = OfficeUtil.getOffice();
+        entityManager.persistAndFlush(office);
         // when: filter users by new office
         // then: return empty list
         mvc.perform(post("/api/user/list")
@@ -104,9 +59,9 @@ public class PersonControllerMockMVCTest {
     @Test
     public void listURL_whenGetWithFilledFilter_thenReturnJSONDataArray() throws Exception {
         // given: stored person
-        Person person = personRepository.findTopByOrderByIdDesc();
+        Person person = entityManager.find(Person.class, 1L);
         // when: filter by given person's fields
-        Map<String, Object> filters = new HashMap<>();
+        JSONObject filters = new JSONObject();
         filters.put("officeId", person.getOfficeId());
         filters.put("firstName", person.getFirstName());
         filters.put("lastName", person.getLastName());
@@ -114,29 +69,30 @@ public class PersonControllerMockMVCTest {
         filters.put("position", person.getPosition());
         filters.put("docCode", person.getDocument().getNumber());
         filters.put("citizenshipCode", person.getCountryId());
-        JSONObject jsonFilter = new JSONObject(filters);
 
-        PersonListView view = mapper.map(person, PersonListView.class);
         // then: return list with given person
         mvc.perform(post("/api/user/list")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(jsonFilter.toJSONString()))
+                .content(filters.toJSONString()))
                 .andExpect(status().isOk())
-                .andExpect(content().string("{\"data\":["+jsonMapper.writeValueAsString(view) +"]}"));
+                .andExpect(jsonPath("$.data[0].id").value(person.getId()))
+                .andExpect(jsonPath("$.data[0].firstName").value(person.getFirstName()))
+                .andExpect(jsonPath("$.data[0].lastName").value(person.getLastName()))
+                .andExpect(jsonPath("$.data[0].middleName").value(person.getMiddleName()))
+                .andExpect(jsonPath("$.data[0].position").value(person.getPosition()));
     }
 
     @Test
     public void listURL_whenGetWithoutOfficeIdFilter_thenReturnJSONError() throws Exception {
         // given dummy first name
-        Map<String, Object> filters = new HashMap<>();
+        JSONObject filters = new JSONObject();
         filters.put("firstName", "Test name");
 
-        JSONObject jsonFilter = new JSONObject(filters);
         // when: filter without officeId parameter (only by first name)
         // then: return error with message about required parameter
         mvc.perform(post("/api/user/list")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(jsonFilter.toJSONString()))
+                .content(filters.toJSONString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.error").value("Required parameter 'officeId' is missing"));
     }
@@ -144,14 +100,24 @@ public class PersonControllerMockMVCTest {
     @Test
     public void getURL_whenIdIsExist_thenReturnJSONData() throws Exception {
         // given: stored person
-        Person person = personRepository.findTopByOrderByIdDesc();
-        PersonItemView ov = mapper.map(person, PersonItemView.class);
+        Person person = entityManager.find(Person.class, 1L);
         // when: get person by person's id
         // then: return given person's data
         mvc.perform(get("/api/user/"+person.getId())
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string("{\"data\":" + jsonMapper.writeValueAsString(ov) + "}"));
+                .andExpect(jsonPath("$.data.id").value(person.getId()))
+                .andExpect(jsonPath("$.data.firstName").value(person.getFirstName()))
+                .andExpect(jsonPath("$.data.lastName").value(person.getLastName()))
+                .andExpect(jsonPath("$.data.middleName").value(person.getMiddleName()))
+                .andExpect(jsonPath("$.data.position").value(person.getPosition()))
+                .andExpect(jsonPath("$.data.phone").value(person.getPhone()))
+                .andExpect(jsonPath("$.data.docName").value(person.getDocument().getDocumentType().getName()))
+                .andExpect(jsonPath("$.data.docNumber").value(person.getDocument().getNumber()))
+                .andExpect(jsonPath("$.data.docDate").value(new SimpleDateFormat("MM-dd-yyyy").format(person.getDocument().getDate())))
+                .andExpect(jsonPath("$.data.citizenshipName").value(person.getCountry().getName()))
+                .andExpect(jsonPath("$.data.citizenshipCode").value(person.getCountryId().toString()))
+                .andExpect(jsonPath("$.data.identified").value(person.getIdentified()));
     }
 
     @Test
@@ -165,60 +131,50 @@ public class PersonControllerMockMVCTest {
     @Test
     public void saveURL_whenGetFullObject_thenReturnJSONDataSuccess() throws Exception {
         // given: new person with fully filled attributes
-        Person person = PersonSeeder.getPerson();
-        person.setOfficeId(officeRepository.findTopByOrderByIdDesc().getId());
+        Person person = PersonUtil.getPerson();
+        person.setOfficeId(1L);
         person.getDocument().setDocumentType(new DocumentType((byte) 2, "Паспорт гражданина РФ"));
         person.setCountry(new Country((short) 643, "Российская Федерация"));
 
-        PersonItemView view = mapper.map(person, PersonItemView.class);
+        JSONObject itemJson = PersonUtil.personToJson(person);
         // when: save new person
+        // then: return success result
         mvc.perform(post("/api/user/save")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(jsonMapper.writeValueAsString(view)))
+                .content(itemJson.toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.result").value("success"));
 
-        // then: the person was stored to database
-        Optional<Person> optionalPerson = personRepository.findOne(Example.of(person, ExampleMatcher.matching()
-                .withIgnorePaths("id", "version", "document")));
-        assertThat(optionalPerson.isPresent()).isTrue();
-
-        Person personSaved = optionalPerson.get();
-        assertThat(personSaved.equals(person)).isTrue();
     }
 
     @Test
     public void saveURL_whenGetNotFull_thenReturnJSONDataSuccess() throws Exception {
         // given: a person with filled only necessary attributes
-        Person person = PersonSeeder.getPersonWithAllowedNull();
-        person.setOfficeId(officeRepository.findTopByOrderByIdDesc().getId());
+        Person person = PersonUtil.getPersonWithRequired();
+        person.setOfficeId(1L);
 
-        PersonItemView view = mapper.map(person, PersonItemView.class);
+        JSONObject itemJson = PersonUtil.personToJson(person);
         // when: save new person
+        // then: return success result
         mvc.perform(post("/api/user/save")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(jsonMapper.writeValueAsString(view)))
+                .content(itemJson.toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.result").value("success"));
 
-        // then: the person was stored to database
-        Optional<Person> optionalPerson = personRepository.findOne(Example.of(person, ExampleMatcher.matching()
-                .withIgnorePaths("id", "version", "document", "countryId")));
-        assertThat(optionalPerson.isPresent()).isTrue();
-
-        Person personSaved = optionalPerson.get();
-        assertThat(personSaved.equals(person)).isTrue();
     }
 
     @Test
     public void saveURL_whenGetNotFull_thenReturnJSONError() throws Exception {
         // given: a person without necessary attributes
-        Person person = PersonSeeder.getPersonWithoutAllowedNull();
+        Person person = PersonUtil.getPersonWithoutRequired();
+
+        JSONObject itemJson = PersonUtil.personToJson(person);
         // when: save the person
         // then: return error with message about missed out attributes
         mvc.perform(post("/api/user/save")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(jsonMapper.writeValueAsString(person)))
+                .content(itemJson.toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.error").exists())
                 .andExpect(content().string(containsString("first name")))
@@ -229,25 +185,25 @@ public class PersonControllerMockMVCTest {
     @Test
     public void updateURL_whenGetFullObject_thenReturnJSONDataSuccess() throws Exception {
         // given: stored person to update and new person with new data
-        Person personToUpdate = personRepository.findTopByOrderByIdDesc();
-        Person personValues = PersonSeeder.getPerson();
+        Person personToUpdate = entityManager.find(Person.class, 1L);
+        Person personValues = PersonUtil.getPerson();
         personToUpdate.setFirstName(personValues.getFirstName());
         personToUpdate.setLastName(personValues.getLastName());
         personToUpdate.setMiddleName(personValues.getMiddleName());
         personToUpdate.setPosition(personValues.getPosition());
-        personToUpdate.setOfficeId(officeRepository.findTopByOrderByIdDesc().getId());
+        personToUpdate.setOfficeId(1L);
         personToUpdate.setDocument(personValues.getDocument());
         personToUpdate.getDocument().setDocumentType(new DocumentType((byte) 2, "Паспорт гражданина РФ"));
 
-        PersonItemView view = mapper.map(personToUpdate, PersonItemView.class);
+        JSONObject itemJson = PersonUtil.personToJson(personToUpdate);
         // when: update already stored person
         mvc.perform(post("/api/user/update")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(jsonMapper.writeValueAsString(view)))
+                .content(itemJson.toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.result").value("success"));
         // then: the person was updated
-        Person personUpdated = personRepository.findById((long) personToUpdate.getId());
+        Person personUpdated = entityManager.find(Person.class, 1L);
 
         assertThat(personUpdated.equals(personToUpdate)).isTrue();
     }
@@ -255,15 +211,17 @@ public class PersonControllerMockMVCTest {
     @Test
     public void updateURL_whenGetNotFull_thenReturnJSONError() throws Exception {
         // given: stored person and person without necessary attributes
-        Person personToUpdate = personRepository.findTopByOrderByIdDesc();
+        Person person = entityManager.find(Person.class, 1L);
 
-        Person person = PersonSeeder.getPersonWithoutAllowedNull();
-        person.setId(personToUpdate.getId());
+        Person personToUpdate = PersonUtil.getPersonWithoutRequired();
+        person.setId(person.getId());
+
+        JSONObject itemJson = PersonUtil.personToJson(personToUpdate);
         // when: update already stored person with missed out necessary attributes
         // then: return error with message about missed out attributes
         mvc.perform(post("/api/user/update")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(jsonMapper.writeValueAsString(person)))
+                .content(itemJson.toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.error").exists())
                 .andExpect(content().string(containsString("first name")))
