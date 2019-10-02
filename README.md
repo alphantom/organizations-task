@@ -1,5 +1,5 @@
 # Organizations-task
-It is a simple rest-api spring project. 
+It is a simple REST API Spring project. 
 
 To run the project run `mvn spring-boot:run`. Looking for it on localhost:8080/
 
